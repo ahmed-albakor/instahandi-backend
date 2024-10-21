@@ -5,10 +5,17 @@ namespace App\Models;
 use GuzzleHttp\Psr7\ServerRequest;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends Model
 {
     use HasFactory;
+
+    use SoftDeletes;
+
+    protected $dates = ['deleted_at'];
+
+    protected $hidden = ['deleted_at'];
 
 
     protected $fillable = [
