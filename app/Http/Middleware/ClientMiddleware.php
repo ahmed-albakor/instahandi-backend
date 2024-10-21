@@ -20,36 +20,13 @@ class ClientMiddleware
     public function handle(Request $request, Closure $next): Response
     {
 
-        $authenticated = false;
-        $authorizationHeader = $request->header('Authorization');
-
-        if ($authorizationHeader !== null && str_contains($authorizationHeader, "Bearer ")) {
-            $parts = explode("|", $authorizationHeader);
-            $access_token = $parts[1];
-            $hashedToken = hash('sha256', $access_token);
-
-            $userId = DB::table('personal_access_tokens')
-                ->where('token', $hashedToken)
-                ->value('tokenable_id');
-
-            $authenticated = $userId != null;
-        }
-
-        if (!$authenticated) {
+        if (!Auth::check()) {
             return response()->json([
                 'success' => false,
                 'message' => 'You are not logged in. Please log in first.',
                 'status' => 401
             ], 401);
         }
-
-        // if (!Auth::check()) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'You are not logged in. Please log in first.',
-        //         'status' => 401
-        //     ], 401);
-        // }
 
         $user = Auth::user();
 
@@ -70,7 +47,7 @@ class ClientMiddleware
             ], 403);
         }
 
-        if ($user->profile_setup !== true) {
+        if (!$user->profile_setup && !$request->is('api/clients/setup-profile')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please complete your profile before proceeding.',

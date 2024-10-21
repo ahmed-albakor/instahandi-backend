@@ -46,7 +46,7 @@ class VendorMiddleware
             ], 403);
         }
 
-        if ($user->profile_setup !== true) {
+        if (!$user->profile_setup && !$request->is('api/vendors/setup-profile')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please complete your profile before proceeding.',

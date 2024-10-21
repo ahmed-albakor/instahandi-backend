@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
+use App\Models\Image;
+use App\Models\Location;
 use App\Models\User;
+use App\Models\Vendor;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
@@ -58,12 +65,9 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            // 'first_name' => 'required|string|max:255',
-            // 'last_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:vendor,client',
-            // 'phone' => 'required|string|max:20',
         ]);
 
         if ($validator->fails()) {
@@ -75,7 +79,7 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $verifyCode = Str::random(6);
+        $verifyCode = rand(100000, 999999);
         $codeExpiry = Carbon::now()->addMinutes(30);
 
         $user = User::create([
@@ -157,14 +161,15 @@ class AuthController extends Controller
         ]);
     }
 
-
-    public function test()
+    public function logout(Request $request)
     {
-        return response()->json(
-            [
-                'success' => true,
-                'message' => 'success test'
-            ]
-        );
+        $token = $request->bearerToken();
+
+        PersonalAccessToken::findToken($token)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User logged out successfully',
+        ], 200);
     }
 }

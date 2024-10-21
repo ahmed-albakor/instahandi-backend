@@ -28,6 +28,7 @@ class User extends Authenticatable
         'description',
         'profile_photo',
         'approve',
+        'profile_setup',
         'verify_code',
         'code_expiry_date',
         'email_verified_at'
