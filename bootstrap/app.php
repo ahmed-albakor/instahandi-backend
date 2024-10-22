@@ -14,14 +14,23 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->is('api/*')) {
+                return null;
+            } else {
+                return null;
+            }
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (AuthenticationException $e, Request $request) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You are not logged in. Please log in first.',
-                'status' => 401
-            ], 401);
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are not logged in. Please log in first.',
+                    'status' => 401
+                ], 401);
+            }
         });
-    })->create();
+    })
+    ->create();

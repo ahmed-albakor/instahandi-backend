@@ -35,6 +35,7 @@ class ServiceController extends Controller
 
     public function index(Request $request)
     {
+        $request->headers->set('Accept', 'application/json');
         $search = $request->input('search');
 
         $services = Service::query()
