@@ -29,7 +29,7 @@ class HomeController extends Controller
 
 
         $testimonials = Testimonial::get()->map(function ($testimonial) {
-            $testimonial->admin_id = asset("storage/" . $testimonial->admin_id);
+            $testimonial->profile_photo = asset("storage/" . $testimonial->profile_photo);
             return $testimonial;
         });
 

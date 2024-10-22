@@ -11,6 +11,27 @@ use Illuminate\Support\Facades\Validator;
 
 class TestimonialController extends Controller
 {
+
+    public function show($id)
+    {
+        $testimonial = Testimonial::find($id);
+
+        if (!$testimonial) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Testimonial not found.',
+            ], 404);
+        }
+
+        $testimonial->profile_photo = asset("storage/" . $testimonial->profile_photo);
+
+        return response()->json([
+            'success' => true,
+            'data' => $testimonial,
+        ], 200);
+    }
+
+
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -20,7 +41,11 @@ class TestimonialController extends Controller
                     ->orWhere('client_name', 'like', "%{$search}%")
                     ->orWhere('job', 'like', "%{$search}%");
             })
-            ->paginate(10);
+            ->paginate(10)
+            ->through(function ($service) {
+                $service->profile_photo = asset("storage/" . $service->profile_photo);
+                return $service;
+            });;
 
 
         return response()->json([
@@ -66,9 +91,11 @@ class TestimonialController extends Controller
             'admin_id' => $user->id,
         ]);
 
-        $path = ImageService::storeImage($request->file('profile_photo'), 'photos_testimonials', $testimonial->id);
+        $path = ImageService::storeImage($request->file('profile_photo'), 'testimonials', $testimonial->id);
 
         $testimonial->update(['profile_photo' => $path]);
+
+        $testimonial->profile_photo = asset("storage/" . $testimonial->profile_photo);
 
         return response()->json([
             'success' => true,
@@ -106,11 +133,13 @@ class TestimonialController extends Controller
         $validated = $validator->validated();
 
         if ($request->hasFile('profile_photo')) {
-            $path = ImageService::storeImage($request->file('profile_photo'), 'photos_testimonials', $testimonial->code);
+            $path = ImageService::storeImage($request->file('profile_photo'), 'testimonials', $testimonial->id);
             $validated['profile_photo'] = $path;
         }
 
         $testimonial->update($validated);
+
+        $testimonial->profile_photo = asset("storage/" . $testimonial->profile_photo);
 
         return response()->json([
             'success' => true,
