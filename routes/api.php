@@ -2,17 +2,16 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\VendorController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\ClientMiddleware;
 use App\Http\Middleware\VendorMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-
-// Route::middleware()->group(function () {
 
 
 Route::get('/user', function (Request $request) {
@@ -50,20 +49,32 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
     ->prefix('admin')
     ->group(function () {
 
+        ########## Services Start ########## 
         Route::get('/services/{id}', [ServiceController::class, 'show']);
-
         Route::get('/services', [ServiceController::class, 'index']);
-
         Route::post('/services', [ServiceController::class, 'create']);
-
         Route::post('/services/{id}', [ServiceController::class, 'update']);
-
         Route::delete('/services/{id}', [ServiceController::class, 'destroy']);
-
-        // Route::post('/services/{id}/restore', [ServiceController::class, 'restore']);
-
         Route::post('/services/{id}/upload-images', [ServiceController::class, 'uploadAdditionalImages']);
-
         Route::post('/services/{id}/delete-images', [ServiceController::class, 'deleteAdditionalImages']);
+        ########## Services End ########## 
+
+
+        ########## Testimonials Start ########## 
+        Route::get('/testimonials/{id}', [TestimonialController::class, 'show']);
+        Route::get('/testimonials', [TestimonialController::class, 'index']);
+        Route::post('/testimonials', [TestimonialController::class, 'create']);
+        Route::post('/testimonials/{id}', [TestimonialController::class, 'update']);
+        Route::delete('/testimonials/{id}', [TestimonialController::class, 'destroy']);
+        ########## Testimonials End ########## 
+
+        
+        ########## Faqs Start ########## 
+        Route::get('/faqs/{id}', [FaqController::class, 'show']);
+        Route::get('/faqs', [FaqController::class, 'index']);
+        Route::post('/faqs', [FaqController::class, 'create']);
+        Route::post('/faqs/{id}', [FaqController::class, 'update']);
+        Route::delete('/faqs/{id}', [FaqController::class, 'destroy']);
+        ########## Faqs End ########## 
+
     });
-// });

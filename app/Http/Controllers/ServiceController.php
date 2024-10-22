@@ -35,7 +35,6 @@ class ServiceController extends Controller
 
     public function index(Request $request)
     {
-        $request->headers->set('Accept', 'application/json');
         $search = $request->input('search');
 
         $services = Service::query()
@@ -46,46 +45,68 @@ class ServiceController extends Controller
                         ->orWhere('description', 'like', "%{$search}%");
                 });
             })
-            ->get()
-            ->map(function ($service) {
+            ->paginate($request->limit ?? 20)
+            ->through(function ($service) {
                 $service->main_image = asset("storage/" . $service->main_image);
                 return $service;
             });
 
         return response()->json([
             'success' => true,
-            'data' => $services,
+            'data' => $services->items(),
+            'meta' => [
+                'current_page' => $services->currentPage(),
+                'last_page' => $services->lastPage(),
+                'per_page' => $services->perPage(),
+                'total' => $services->total(),
+            ]
         ]);
     }
 
 
+
     public function create(Request $request)
     {
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'main_image' => 'required|image|mimes:jpeg,png,jpg,webp,svg|max:8096',
             'description' => 'nullable|string',
             'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:8096',
         ]);
 
-        $mainImagePath = ImageService::storeImage($request->file('main_image'), 'services');
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validatedData = $validator->validated();
+
+
 
         $service = Service::create([
             'name' => $validatedData['name'],
             'description' => $validatedData['description'] ?? '',
-            'main_image' => $mainImagePath,
+            'main_image' => ' ',
             'code' => rand(100000, 999999),
         ]);
 
+        $code = 'SRVC' . sprintf('%03d', $service->id);
+
+        $mainImagePath = ImageService::storeImage($request->file('main_image'), 'services', $code);
+
         $service->update(
             [
-                'code' => 'SRVC' . sprintf('%03d', $service->id),
+                'code' =>  $code,
+                'main_image' => $mainImagePath,
             ]
         );
 
+
         if ($request->hasFile('additional_images')) {
             foreach ($request->file('additional_images') as $image) {
-                $imagePath = ImageService::storeImage($image, 'services');
+                $imagePath = ImageService::storeImage($image, 'services_additional');
                 Image::create([
                     'code' => $service->code,
                     'path' => $imagePath,
@@ -114,14 +135,25 @@ class ServiceController extends Controller
             ], 404);
         }
 
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:8096',
             'description' => 'nullable|string',
         ]);
 
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validatedData = $validator->validated();
+
+
         if ($request->hasFile('main_image')) {
-            $mainImagePath = ImageService::updateImage($request->file('main_image'), 'services', $service->main_image);
+            $mainImagePath = ImageService::storeImage($request->file('main_image'), 'services', $service->code);
             $service->update(['main_image' => $mainImagePath]);
         }
 
@@ -154,7 +186,7 @@ class ServiceController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Service soft deleted successfully.',
+            'message' => 'Service deleted successfully.',
         ]);
     }
 
@@ -204,7 +236,7 @@ class ServiceController extends Controller
         }
 
         $newImages = collect($request->file('additional_images'))->map(function ($image) use ($service) {
-            $imagePath = ImageService::storeImage($image, 'services');
+            $imagePath = ImageService::storeImage($image, 'services_additional');
             $imageModel = Image::create([
                 'code' => $service->code,
                 'path' => $imagePath,
