@@ -2,19 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Testimonial;
-use App\Models\Image;
-use App\Services\ImageService;
+use App\Services\System\TestimonialService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class TestimonialController extends Controller
 {
+    protected $testimonialService;
+
+    public function __construct(TestimonialService $testimonialService)
+    {
+        $this->testimonialService = $testimonialService;
+    }
 
     public function show($id)
     {
-        $testimonial = Testimonial::find($id);
+        $testimonial = $this->testimonialService->getTestimonialById($id);
 
         if (!$testimonial) {
             return response()->json([
@@ -31,22 +35,10 @@ class TestimonialController extends Controller
         ], 200);
     }
 
-
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $testimonials = Testimonial::query()
-            ->when($search, function ($query, $search) {
-                return $query->where('message', 'like', "%{$search}%")
-                    ->orWhere('client_name', 'like', "%{$search}%")
-                    ->orWhere('job', 'like', "%{$search}%");
-            })
-            ->paginate(10)
-            ->through(function ($service) {
-                $service->profile_photo = asset("storage/" . $service->profile_photo);
-                return $service;
-            });;
-
+        $testimonials = $this->testimonialService->getAllTestimonials($search, $request->limit);
 
         return response()->json([
             'success' => true,
@@ -77,23 +69,11 @@ class TestimonialController extends Controller
             ], 422);
         }
 
-        $user = Auth::user();
-
-
         $validated = $validator->validated();
+        $user = Auth::user();
+        $validated['admin_id'] = $user->id;
 
-        $testimonial = Testimonial::create([
-            'message' => $validated['message'],
-            'rating' => $validated['rating'],
-            'client_name' => $validated['client_name'],
-            'job' => $validated['job'],
-            'profile_photo' => ' ',
-            'admin_id' => $user->id,
-        ]);
-
-        $path = ImageService::storeImage($request->file('profile_photo'), 'testimonials', $testimonial->id);
-
-        $testimonial->update(['profile_photo' => $path]);
+        $testimonial = $this->testimonialService->createTestimonial($validated, $request->file('profile_photo'));
 
         $testimonial->profile_photo = asset("storage/" . $testimonial->profile_photo);
 
@@ -106,7 +86,7 @@ class TestimonialController extends Controller
 
     public function update(Request $request, $id)
     {
-        $testimonial = Testimonial::find($id);
+        $testimonial = $this->testimonialService->getTestimonialById($id);
 
         if (!$testimonial) {
             return response()->json([
@@ -131,13 +111,9 @@ class TestimonialController extends Controller
         }
 
         $validated = $validator->validated();
+        $profilePhoto = $request->hasFile('profile_photo') ? $request->file('profile_photo') : null;
 
-        if ($request->hasFile('profile_photo')) {
-            $path = ImageService::storeImage($request->file('profile_photo'), 'testimonials', $testimonial->id);
-            $validated['profile_photo'] = $path;
-        }
-
-        $testimonial->update($validated);
+        $testimonial = $this->testimonialService->updateTestimonial($testimonial, $validated, $profilePhoto);
 
         $testimonial->profile_photo = asset("storage/" . $testimonial->profile_photo);
 
@@ -150,7 +126,7 @@ class TestimonialController extends Controller
 
     public function destroy($id)
     {
-        $testimonial = Testimonial::find($id);
+        $testimonial = $this->testimonialService->getTestimonialById($id);
 
         if (!$testimonial) {
             return response()->json([
@@ -159,7 +135,7 @@ class TestimonialController extends Controller
             ], 404);
         }
 
-        $testimonial->delete();
+        $this->testimonialService->deleteTestimonial($testimonial);
 
         return response()->json([
             'success' => true,

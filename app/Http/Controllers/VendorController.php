@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Client;
-use App\Models\Image;
-use App\Models\Location;
-use App\Models\Vendor;
-use App\Services\ImageService;
+use App\Services\System\VendorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class VendorController extends Controller
 {
+    protected $vendorService;
+
+    public function __construct(VendorService $vendorService)
+    {
+        $this->vendorService = $vendorService;
+    }
+
     public function setupProfile(Request $request)
     {
         $user = Auth::user();
@@ -57,55 +60,7 @@ class VendorController extends Controller
 
         $validatedData = $validator->validated();
 
-        $vendor = Vendor::create([
-            'user_id' => $user->id,
-            'code' => $user->code,
-            'account_type' => $validatedData['account_type'],
-            'years_experience' => $validatedData['years_experience'],
-            'longitude' => $validatedData['longitude'] ?? null,
-            'latitude' => $validatedData['latitude'] ?? null,
-            'has_crew' => $validatedData['has_crew'] ?? false,
-            'crew_members' => $validatedData['crew_members'] ?? null,
-        ]);
-
-        $vendor->update([
-            'code' => 'VND' . sprintf('%03d', $vendor->id),
-        ]);
-
-        Location::updateOrCreate(
-            ['code' => $user->code],
-            [
-                'street_address' => $validatedData['street_address'],
-                'exstra_address' => $validatedData['exstra_address'] ?? null,
-                'country' => $validatedData['country'],
-                'city' => $validatedData['city'],
-                'state' => $validatedData['state'],
-                'zip_code' => $validatedData['zip_code'],
-            ]
-        );
-
-        if ($request->hasFile('profile_photo')) {
-            $profilePhotoPath = ImageService::storeImage($request->file('profile_photo'), 'profile_photos');
-            $user->update(['profile_photo' => $profilePhotoPath]);
-        }
-
-        if ($request->hasFile('additional_images')) {
-            foreach ($request->file('additional_images') as $image) {
-                $imagePath = ImageService::storeImage($image, 'vendor_images');
-                Image::create([
-                    'code' => $user->code,
-                    'path' => $imagePath,
-                ]);
-            }
-        }
-
-        $user->update([
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'phone' => $validatedData['phone'],
-            'description' => $validatedData['description'],
-            'profile_setup' => true,
-        ]);
+        $this->vendorService->setupVendorProfile($validatedData, $user);
 
         return response()->json([
             'success' => true,

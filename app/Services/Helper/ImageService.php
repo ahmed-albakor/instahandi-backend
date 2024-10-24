@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Helper;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -18,7 +18,10 @@ class ImageService
     public static function storeImage($image, $folder, $name = null)
     {
         self::MakeFolder($folder);
-        $imageName =  $name . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+        $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
+        if ($name) {
+            $imageName = $name . '-' . $imageName;
+        }
         // $imageName = $name != null ? $name : uniqid() . '.' . $image->getClientOriginalExtension();
         $new_path = storage_path(sprintf('app/public/%s/%s', $folder, $imageName));
         move_uploaded_file($image, $new_path);

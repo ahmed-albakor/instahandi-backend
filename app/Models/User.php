@@ -64,15 +64,22 @@ class User extends Authenticatable
         ];
     }
 
-    public function vendors()
+
+    public function  getProfilePhoto()
+    {
+        return $this->profile_photo = asset("storage/" . $this->profile_photo);
+    }
+
+    public function vendor()
     {
         return $this->hasOne(Vendor::class);
     }
 
-    public function clients()
+    public function client()
     {
         return $this->hasOne(Client::class);
     }
+
 
     public function vendorPayments()
     {

@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Faq;
+use App\Services\System\FaqService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class FaqController extends Controller
 {
+    protected $faqService;
+
+    public function __construct(FaqService $faqService)
+    {
+        $this->faqService = $faqService;
+    }
 
     public function show($id)
     {
-        $faq = Faq::find($id);
+        $faq = $this->faqService->getFaqById($id);
 
         if (!$faq) {
             return response()->json([
@@ -31,27 +37,18 @@ class FaqController extends Controller
     {
         $search = $request->input('search');
 
-        $faqs = Faq::query()
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($q) use ($search) {
-                    $q->where('answer', 'like', "%{$search}%")
-                        ->orWhere('question', 'like', "%{$search}%");
-                });
-            })
-            ->paginate($request->limit ?? 20);
+        $faqs = $this->faqService->getAllFaqs($search, $request->limit);
 
-        return response()->json(
-            [
-                'success' => true,
-                'data' => $faqs->items(),
-                'meta' => [
-                    'current_page' => $faqs->currentPage(),
-                    'last_page' => $faqs->lastPage(),
-                    'per_page' => $faqs->perPage(),
-                    'total' => $faqs->total(),
-                ]
+        return response()->json([
+            'success' => true,
+            'data' => $faqs->items(),
+            'meta' => [
+                'current_page' => $faqs->currentPage(),
+                'last_page' => $faqs->lastPage(),
+                'per_page' => $faqs->perPage(),
+                'total' => $faqs->total(),
             ]
-        );
+        ]);
     }
 
     public function create(Request $request)
@@ -69,14 +66,10 @@ class FaqController extends Controller
         }
 
         $validatedData = $validator->validated();
-
         $user = Auth::user();
-
         $validatedData['admin_id'] = $user->id;
 
-
-        $faq = Faq::create($validatedData);
-
+        $faq = $this->faqService->createFaq($validatedData);
 
         return response()->json([
             'success' => true,
@@ -84,10 +77,9 @@ class FaqController extends Controller
         ]);
     }
 
-
     public function update(Request $request, $id)
     {
-        $faq = Faq::find($id);
+        $faq = $this->faqService->getFaqById($id);
 
         if (!$faq) {
             return response()->json([
@@ -109,9 +101,7 @@ class FaqController extends Controller
         }
 
         $validatedData = $validator->validated();
-
-
-        $faq->update($validatedData);
+        $faq = $this->faqService->updateFaq($faq, $validatedData);
 
         return response()->json([
             'success' => true,
@@ -122,7 +112,7 @@ class FaqController extends Controller
 
     public function destroy($id)
     {
-        $faq = Faq::find($id);
+        $faq = $this->faqService->getFaqById($id);
 
         if (!$faq) {
             return response()->json([
@@ -131,8 +121,8 @@ class FaqController extends Controller
             ], 404);
         }
 
-        $faq->delete();
-        
+        $this->faqService->deleteFaq($faq);
+
         return response()->json([
             'success' => true,
             'message' => 'FAQ deleted successfully'

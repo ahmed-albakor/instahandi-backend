@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Client;
-use App\Models\Image;
-use App\Models\Location;
-use App\Models\Vendor;
-use App\Services\ImageService;
+use App\Services\System\ClientService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class ClientController extends Controller
 {
+    protected $clientService;
+
+    public function __construct(ClientService $clientService)
+    {
+        $this->clientService = $clientService;
+    }
+
     public function setupProfile(Request $request)
     {
         $user = Auth::user();
@@ -51,49 +54,7 @@ class ClientController extends Controller
 
         $validatedData = $validator->validated();
 
-        $client = Client::create([
-            'user_id' => $user->id,
-            'code' => $user->code,
-        ]);
-
-        $client->update([
-            'code' => 'CLT' . sprintf('%03d', $client->id),
-        ]);
-
-        Location::updateOrCreate(
-            ['code' => $user->code],
-            [
-                'street_address' => $validatedData['street_address'],
-                'exstra_address' => $validatedData['exstra_address'] ?? null,
-                'country' => $validatedData['country'],
-                'city' => $validatedData['city'],
-                'state' => $validatedData['state'],
-                'zip_code' => $validatedData['zip_code'],
-            ]
-        );
-
-        if ($request->hasFile('profile_photo')) {
-            $profilePhotoPath = ImageService::storeImage($request->file('profile_photo'), 'profile_photos');
-            $user->update(['profile_photo' => $profilePhotoPath]);
-        }
-
-        if ($request->hasFile('additional_images')) {
-            foreach ($request->file('additional_images') as $image) {
-                $imagePath = ImageService::storeImage($image, 'client_images');
-                Image::create([
-                    'code' => $user->code,
-                    'path' => $imagePath,
-                ]);
-            }
-        }
-
-        $user->update([
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'phone' => $validatedData['phone'],
-            'description' => $validatedData['description'],
-            'profile_setup' => true,
-        ]);
+        $this->clientService->setupClientProfile($validatedData, $user);
 
         return response()->json([
             'success' => true,

@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Client;
-use App\Models\Image;
-use App\Models\Location;
 use App\Models\User;
-use App\Models\Vendor;
-use App\Services\ImageService;
+use App\Services\System\AuthService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
+    protected $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -25,7 +26,6 @@ class AuthController extends Controller
             'password' => 'required|min:8',
             'role' => 'required|in:admin,vendor,client',
         ]);
-
 
         if ($validator->fails()) {
             return response()->json([
@@ -38,18 +38,15 @@ class AuthController extends Controller
 
         $loginUserData = $validator->validated();
 
-        $user = User::where('email', $loginUserData['email'])
-            ->where('role', $loginUserData['role'])
-            ->first();
+        $user = $this->authService->login($loginUserData);
 
-        if (!$user || !Hash::check($loginUserData['password'], $user->password)) {
+        if (!$user) {
             return response()->json([
                 'success' => false,
                 'status' => 401,
                 'message' => 'Invalid Credentials',
             ], 401);
         }
-
 
         $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
 
@@ -59,8 +56,6 @@ class AuthController extends Controller
             'user' => $user,
         ]);
     }
-
-
 
     public function register(Request $request)
     {
@@ -79,27 +74,7 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $verifyCode = rand(100000, 999999);
-        $codeExpiry = Carbon::now()->addMinutes(30);
-
-        $user = User::create([
-            'code' => Str::random(8),
-            'first_name' => ' ',
-            'last_name' => ' ',
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'phone' => ' ',
-            'approve' => 0,
-            'verify_code' => $verifyCode,
-            'code_expiry_date' => $codeExpiry,
-        ]);
-
-        $user->update(
-            [
-                'code' =>  'USR' . sprintf('%03d', $user->id),
-            ]
-        );
+        $user = $this->authService->register($validator->validated());
 
         // Mail::to($user->email)->send(new VerifyEmail($verifyCode));
 
@@ -109,6 +84,33 @@ class AuthController extends Controller
         ]);
     }
 
+
+    public function sendCode()
+    {
+        $user = Auth::user();
+
+        if ($user->approve == 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account already Verified.',
+            ]);
+        }
+
+        $verifyCode = rand(100000, 999999);
+        $codeExpiry = Carbon::now()->addMinutes(30);
+
+        $user->update([
+            'verify_code' => $verifyCode,
+            'code_expiry_date' => $codeExpiry,
+        ]);
+
+        // Mail::to($user->email)->send(new VerifyEmail($verifyCode));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Code send successfully, check you email.',
+        ]);
+    }
 
     public function verifyCode(Request $request)
     {
@@ -136,19 +138,13 @@ class AuthController extends Controller
             ], 404);
         }
 
-        if ($user->verify_code !== $request->verify_code || Carbon::now()->greaterThan($user->code_expiry_date)) {
+        if (!$this->authService->verifyCode($user, $request->verify_code)) {
             return response()->json([
                 'success' => false,
                 'status' => 401,
                 'message' => 'Invalid or expired verification code',
             ], 401);
         }
-
-        $user->update([
-            'approve' => 1,
-            'verify_code' => null,
-            'code_expiry_date' => null,
-        ]);
 
         $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
 
@@ -165,7 +161,7 @@ class AuthController extends Controller
     {
         $token = $request->bearerToken();
 
-        PersonalAccessToken::findToken($token)->delete();
+        $this->authService->logout(PersonalAccessToken::findToken($token));
 
         return response()->json([
             'success' => true,

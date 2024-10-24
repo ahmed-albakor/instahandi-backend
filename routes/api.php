@@ -5,6 +5,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\VendorController;
 use App\Http\Middleware\AdminMiddleware;
@@ -28,6 +29,7 @@ Route::prefix('auth')
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/verify-code', [AuthController::class, 'verifyCode']);
+        Route::post('/send-code', [AuthController::class, 'sendCode'])->middleware('auth:sanctum');
         Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
     });
 
@@ -35,6 +37,17 @@ Route::middleware([ClientMiddleware::class, 'auth:sanctum'])
     ->prefix('clients')
     ->group(function () {
         Route::post('/setup-profile', [ClientController::class, 'setupProfile']);
+
+
+        ########## ServiceRequests Start ########## 
+        Route::get('/service-requests', [ServiceRequestController::class, 'index']);
+        Route::get('/service-requests/{id}', [ServiceRequestController::class, 'show']);
+        Route::post('/service-requests', [ServiceRequestController::class, 'store']);
+        Route::post('/service-requests/{id}', [ServiceRequestController::class, 'update']);
+        Route::delete('/service-requests/{id}', [ServiceRequestController::class, 'destroy']);
+        Route::post('/service-requests/{id}/upload-images', [ServiceRequestController::class, 'uploadAdditionalImages']);
+        Route::post('/service-requests/{id}/delete-images', [ServiceRequestController::class, 'deleteAdditionalImages']);
+        ########## ServiceRequests End ########## 
     });
 
 
@@ -42,6 +55,9 @@ Route::middleware([VendorMiddleware::class, 'auth:sanctum'])
     ->prefix('vendors')
     ->group(function () {
         Route::post('/setup-profile', [VendorController::class, 'setupProfile']);
+
+        Route::get('/service-requests/{id}', [ServiceRequestController::class, 'show']);
+        Route::get('/service-requests', [ServiceRequestController::class, 'index']);
     });
 
 
@@ -68,7 +84,7 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
         Route::delete('/testimonials/{id}', [TestimonialController::class, 'destroy']);
         ########## Testimonials End ########## 
 
-        
+
         ########## Faqs Start ########## 
         Route::get('/faqs/{id}', [FaqController::class, 'show']);
         Route::get('/faqs', [FaqController::class, 'index']);
@@ -76,5 +92,16 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
         Route::post('/faqs/{id}', [FaqController::class, 'update']);
         Route::delete('/faqs/{id}', [FaqController::class, 'destroy']);
         ########## Faqs End ########## 
+
+
+        ########## ServiceRequests Start ########## 
+        Route::get('/service-requests', [ServiceRequestController::class, 'index']);
+        Route::get('/service-requests/{id}', [ServiceRequestController::class, 'show']);
+        Route::post('/service-requests', [ServiceRequestController::class, 'store']);
+        Route::post('/service-requests/{id}', [ServiceRequestController::class, 'update']);
+        Route::delete('/service-requests/{id}', [ServiceRequestController::class, 'destroy']);
+        Route::post('/service-requests/{id}/upload-images', [ServiceRequestController::class, 'uploadAdditionalImages']);
+        Route::post('/service-requests/{id}/delete-images', [ServiceRequestController::class, 'deleteAdditionalImages']);
+        ########## ServiceRequests End ########## 
 
     });
