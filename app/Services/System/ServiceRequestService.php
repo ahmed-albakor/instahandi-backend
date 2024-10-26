@@ -190,7 +190,7 @@ class ServiceRequestService
         $user = Auth::user();
 
         if ($user->role == 'client') {
-            if ($user->client && $user->client->id != $serviceRequest->client_id) {
+            if ($user->client->id != $serviceRequest->client_id) {
                 return false;
             }
         }

@@ -7,7 +7,9 @@ use App\Services\System\ServiceRequestService;
 use GuzzleHttp\Psr7\ServerRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
+use App\Traits\HasHiddenFields;
 
 class ServiceRequestController extends Controller
 {
@@ -27,11 +29,10 @@ class ServiceRequestController extends Controller
 
         $serviceRequests = $this->serviceRequestService->index($search, $limit);
 
-        $serviceRequests->getCollection()->transform(function ($serviceRequest) use ($user) {
+        $serviceRequests->getCollection()->transform(function ($serviceRequest) {
             $serviceRequest->images = $serviceRequest->getImages();
             if ($serviceRequest->client->user) {
-                if ($user->role == 'vendor')
-                    $serviceRequest->client->user->makeHidden(['email', 'phone', 'approve', 'profile_setup', 'verify_code', 'code_expiry_date', 'email_verified_at', 'created_at', 'updated_at']);
+                $serviceRequest->client->user->makeHidden(HasHiddenFields::getUserHiddenFields());
                 $serviceRequest->client->user->profile_photo = $serviceRequest->client->user->getProfilePhoto();
             }
             return $serviceRequest;
@@ -70,19 +71,21 @@ class ServiceRequestController extends Controller
             ], 403);
         }
 
-        $user = Auth::user();
-
-
         $serviceRequest->images = $serviceRequest->getImages();
 
-        $serviceRequest->load(['location', 'client.user']);
+        $serviceRequest->load(['location', 'client.user', 'proposals.vendor.user']);
 
-        if ($serviceRequest->client->user) {
+        if ($serviceRequest->client && $serviceRequest->client->user) {
             $serviceRequest->client->user->profile_photo = $serviceRequest->client->user->getProfilePhoto();
-            if ($user->role == 'vendor')
-                $serviceRequest->client->user->makeHidden(['email', 'phone', 'approve', 'profile_setup', 'verify_code', 'code_expiry_date', 'email_verified_at', 'created_at', 'updated_at']);
+            $serviceRequest->client->user->makeHidden(HasHiddenFields::getUserHiddenFields());
         }
-        
+
+        $serviceRequest->proposals->each(function ($proposal) {
+            if ($proposal->vendor && $proposal->vendor->user) {
+                $proposal->vendor->user->makeHidden(HasHiddenFields::getUserHiddenFields());
+                $proposal->vendor->user->profile_photo = $proposal->vendor->user->getProfilePhoto();
+            }
+        });
 
         return response()->json([
             'success' => true,
@@ -100,8 +103,8 @@ class ServiceRequestController extends Controller
             'price' => 'required|numeric|min:0',
             'start_date' => 'required|date',
             'completion_date' => 'required|date',
-            'service_id' => 'required|exists:services,id',
-            'client_id' => 'required|exists:clients,id',
+            'service_id' => 'required|exists:services,id,deleted_at,NULL',
+            'client_id' => 'required|exists:clients,id,deleted_at,NULL',
             // Location Validator
             'street_address' => 'required|string',
             'exstra_address' => 'nullable|string',

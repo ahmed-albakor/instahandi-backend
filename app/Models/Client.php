@@ -53,8 +53,4 @@ class Client extends Model
         return $this->hasMany(VendorReview::class);
     }
 
-    public function location()
-    {
-        return $this->hasOne(Location::class, 'code', 'code');
-    }
 }

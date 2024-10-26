@@ -40,6 +40,11 @@ class ServiceRequest extends Model
         return $this->belongsTo(Service::class);
     }
 
+    public function proposals()
+    {
+        return $this->hasMany(Proposal::class);
+    }
+
     public function location()
     {
         return $this->hasOne(Location::class, 'code', 'code');

@@ -110,4 +110,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(NotificationSetting::class);
     }
+
+    public function location()
+    {
+        return $this->hasOne(Location::class, 'code', 'code');
+    }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\TestimonialController;
@@ -58,6 +59,15 @@ Route::middleware([VendorMiddleware::class, 'auth:sanctum'])
 
         Route::get('/service-requests/{id}', [ServiceRequestController::class, 'show']);
         Route::get('/service-requests', [ServiceRequestController::class, 'index']);
+
+
+        ########## Proposals Start ########## 
+        Route::get('proposals/', [ProposalController::class, 'index']);
+        Route::get('proposals/{id}', [ProposalController::class, 'show']);
+        Route::post('proposals/', [ProposalController::class, 'create']);
+        Route::post('proposals/{id}', [ProposalController::class, 'update']);
+        Route::delete('proposals/{id}', [ProposalController::class, 'destroy']);
+        ########## Proposals End ########## 
     });
 
 
@@ -103,5 +113,14 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
         Route::post('/service-requests/{id}/upload-images', [ServiceRequestController::class, 'uploadAdditionalImages']);
         Route::post('/service-requests/{id}/delete-images', [ServiceRequestController::class, 'deleteAdditionalImages']);
         ########## ServiceRequests End ########## 
+
+
+        ########## Proposals Start ########## 
+        Route::get('proposals/', [ProposalController::class, 'index']);
+        Route::get('proposals/{id}', [ProposalController::class, 'show']);
+        Route::post('proposals/', [ProposalController::class, 'create']);
+        Route::post('proposals/{id}', [ProposalController::class, 'update']);
+        Route::delete('proposals/{id}', [ProposalController::class, 'destroy']);
+        ########## Proposals End ########## 
 
     });
