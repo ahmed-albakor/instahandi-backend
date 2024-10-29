@@ -3,24 +3,48 @@
 namespace App\Services\System;
 
 use App\Models\Testimonial;
+use App\Services\Helper\FilterService;
 use App\Services\Helper\ImageService;
 
 class TestimonialService
 {
     public function getTestimonialById($id)
     {
-        return Testimonial::find($id);
+
+        $testimonial =   Testimonial::find($id);
+
+        if (!$testimonial) {
+            abort(
+                response()->json([
+                    'success' => false,
+                    'message' => 'Testimonial not found.',
+                ], 404)
+            );
+        }
+        return $testimonial;
     }
 
-    public function getAllTestimonials($search, $limit)
+    public function getAllTestimonials()
     {
-        return Testimonial::query()
-            ->when($search, function ($query, $search) {
-                return $query->where('message', 'like', "%{$search}%")
-                    ->orWhere('client_name', 'like', "%{$search}%")
-                    ->orWhere('job', 'like', "%{$search}%");
-            })
-            ->paginate($limit ?? 10);
+        $query = Testimonial::query();
+
+        $searchFields = ['job', 'message', 'client_name'];
+        $numericFields = [];
+        $dateFields = ['created_at'];
+        $exactMatchFields = [];
+        $inFields = [];
+
+        $testimonials =  FilterService::applyFilters(
+            $query,
+            request()->all(),
+            $searchFields,
+            $numericFields,
+            $dateFields,
+            $exactMatchFields,
+            $inFields
+        );
+
+        return $testimonials;
     }
 
     public function createTestimonial($validatedData, $profilePhoto)

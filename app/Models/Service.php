@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Service extends Model
 {
@@ -20,18 +21,16 @@ class Service extends Model
         'main_image',
     ];
 
+    protected function mainImage(): Attribute
+    {
+        return Attribute::make(
+            get: fn(string $value) =>  asset("storage/" . $value),
+        );
+    }
 
 
     public function images()
     {
         return $this->hasMany(Image::class, 'code', 'code');
-    }
-
-    public function getImages()
-    {
-        return $this->images->map(function ($image) {
-            $image->path = asset("storage/" . $image->path);
-            return $image;
-        });
     }
 }

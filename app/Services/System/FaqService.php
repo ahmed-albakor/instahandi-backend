@@ -3,24 +3,47 @@
 namespace App\Services\System;
 
 use App\Models\Faq;
+use App\Services\Helper\FilterService;
 
 class FaqService
 {
     public function getFaqById($id)
     {
-        return Faq::find($id);
+        $faq = Faq::find($id);
+
+        if (!$faq) {
+            abort(response()->json([
+                'success' => false,
+                'message' => 'Faq not found.',
+            ], 404));
+        }
+
+        return $faq;
     }
 
-    public function getAllFaqs($search, $limit)
+    public function getAllFaqs()
     {
-        return Faq::query()
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($q) use ($search) {
-                    $q->where('answer', 'like', "%{$search}%")
-                        ->orWhere('question', 'like', "%{$search}%");
-                });
-            })
-            ->paginate($limit ?? 20);
+        $query = Faq::query();
+
+
+        $searchFields = ['answer', 'question'];
+        $numericFields = [];
+        $dateFields = ['created_at'];
+        $exactMatchFields = [];
+        $inFields = [];
+
+        $faqs = FilterService::applyFilters(
+            $query,
+            request()->all(),
+            $searchFields,
+            $numericFields,
+            $dateFields,
+            $exactMatchFields,
+            $inFields
+        );
+
+
+        return $faqs;
     }
 
     public function createFaq($validatedData)

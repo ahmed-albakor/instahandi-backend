@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ProposalResource extends JsonResource
+{
+    public function toArray($request)
+    {
+        return [
+            'id' => $this->id,
+            'code' => $this->code,
+            'service_request_id' => $this->service_request_id,
+            'vendor_id' => $this->vendor_id,
+            'message' => $this->message,
+            'price' => $this->price,
+            'payment_type' => $this->payment_type,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'service_request' => new ServiceRequestResource($this->whenLoaded('serviceRequest')),
+            'vendor' => new VendorResource($this->whenLoaded('vendor')),
+        ];
+    }
+}

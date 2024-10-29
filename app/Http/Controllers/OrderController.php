@@ -2,9 +2,84 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Order\CreateOrderRequest;
+use App\Http\Requests\Order\UpdateOrderRequest;
+use App\Http\Resources\OrderResource;
+use App\Permissions\OrderPermission;
+use App\Services\Helper\ResponseService;
+use App\Services\System\OrderService;
 
 class OrderController extends Controller
 {
-    //
+    protected $orderService;
+
+    public function __construct(OrderService $orderService)
+    {
+        $this->orderService = $orderService;
+    }
+
+    public function index()
+    {
+        $orders = $this->orderService->index();
+
+        return response()->json(
+            [
+                'success' => true,
+                'data' => OrderResource::collection($orders->items()),
+                'meta' => ResponseService::meta($orders)
+            ]
+        );
+    }
+
+    public function show($id)
+    {
+        $relationships = ['serviceRequest', 'workLocation', 'images', 'vendor.user', 'proposal'];
+
+        $order = $this->orderService->getOrderById($id, $relationships);
+
+        return response()->json([
+            'success' => true,
+            'data' => new OrderResource($order),
+        ]);
+    }
+
+    public function create(CreateOrderRequest $request)
+    {
+        $order = $this->orderService->createOrder($request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order created successfully.',
+            'data' => new OrderResource($order),
+        ]);
+    }
+
+    public function update($id, UpdateOrderRequest $request)
+    {
+        $order = $this->orderService->getOrderById($id);
+
+        OrderPermission::update($order);
+
+        $order = $this->orderService->updateOrder($order, $request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order updated successfully.',
+            'data' => new OrderResource($order),
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $order = $this->orderService->getOrderById($id);
+
+        OrderPermission::destory($order);
+
+        $this->orderService->deleteOrder($order);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order deleted successfully.',
+        ]);
+    }
 }

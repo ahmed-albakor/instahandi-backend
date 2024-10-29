@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -12,7 +13,7 @@ class Testimonial extends Model
     protected $dates = ['deleted_at'];
 
     protected $hidden = ['deleted_at'];
-    
+
     protected $fillable = [
         'user_id',
         'message',
@@ -22,4 +23,12 @@ class Testimonial extends Model
         'profile_photo',
         'admin_id',
     ];
+
+
+    protected function profilePhoto(): Attribute
+    {
+        return Attribute::make(
+            get: fn(string $value) => !is_null($value) ? asset("storage/" . $value) : null,
+        );
+    }
 }

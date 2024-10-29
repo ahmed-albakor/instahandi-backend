@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\VerifyCodeRequest;
 use App\Models\User;
 use App\Services\System\AuthService;
 use Carbon\Carbon;
@@ -19,24 +22,9 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required|min:8',
-            'role' => 'required|in:admin,vendor,client',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'status' => 422,
-                'message' => 'Validation Errors',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $loginUserData = $validator->validated();
+        $loginUserData = $request->validated();
 
         $user = $this->authService->login($loginUserData);
 
@@ -57,24 +45,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:vendor,client',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'status' => 422,
-                'message' => 'Validation Errors',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $user = $this->authService->register($validator->validated());
+        $user = $this->authService->register($request->validated());
 
         // Mail::to($user->email)->send(new VerifyEmail($verifyCode));
 
@@ -112,22 +85,8 @@ class AuthController extends Controller
         ]);
     }
 
-    public function verifyCode(Request $request)
+    public function verifyCode(VerifyCodeRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'verify_code' => 'required|string|max:6',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'status' => 422,
-                'message' => 'Validation Errors',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
@@ -157,9 +116,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(Request $request)
+    public function logout()
     {
-        $token = $request->bearerToken();
+        $token = request()->bearerToken();
 
         $this->authService->logout(PersonalAccessToken::findToken($token));
 

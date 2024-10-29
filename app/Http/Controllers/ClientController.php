@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Client\SetupProfileRequest;
 use App\Services\System\ClientService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,7 @@ class ClientController extends Controller
         $this->clientService = $clientService;
     }
 
-    public function setupProfile(Request $request)
+    public function setupProfile(SetupProfileRequest $request)
     {
         $user = Auth::user();
 
@@ -27,32 +28,7 @@ class ClientController extends Controller
             ], 400);
         }
 
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:50',
-            'phone' => 'required|string|max:25',
-            'description' => 'nullable|string',
-            'profile_photo' => 'required|image|mimes:jpeg,png,jpg,webp|max:8096',
-            // Location Validator
-            'street_address' => 'required|string',
-            'exstra_address' => 'nullable|string',
-            'country' => 'required|string|max:50',
-            'city' => 'required|string|max:50',
-            'state' => 'required|string|max:20',
-            'zip_code' => 'required|string|max:20',
-            'additional_images.*' => 'image|mimes:jpeg,png,jpg,webp|max:8096'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'status' => 422,
-                'message' => 'Validation Errors',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $validatedData = $validator->validated();
+        $validatedData = $request->validated();
 
         $this->clientService->setupClientProfile($validatedData, $user);
 

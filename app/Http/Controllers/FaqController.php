@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Faq\CreateRequest;
+use App\Http\Requests\Faq\UpdateRequest;
+use App\Services\Helper\ResponseService;
 use App\Services\System\FaqService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 class FaqController extends Controller
 {
@@ -20,52 +21,26 @@ class FaqController extends Controller
     {
         $faq = $this->faqService->getFaqById($id);
 
-        if (!$faq) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Faq not found.',
-            ], 404);
-        }
-
         return response()->json([
             'success' => true,
             'data' => $faq
         ]);
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $search = $request->input('search');
-
-        $faqs = $this->faqService->getAllFaqs($search, $request->limit);
+        $faqs = $this->faqService->getAllFaqs();
 
         return response()->json([
             'success' => true,
             'data' => $faqs->items(),
-            'meta' => [
-                'current_page' => $faqs->currentPage(),
-                'last_page' => $faqs->lastPage(),
-                'per_page' => $faqs->perPage(),
-                'total' => $faqs->total(),
-            ]
+            'meta' => ResponseService::meta($faqs),
         ]);
     }
 
-    public function create(Request $request)
+    public function create(CreateRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'question' => 'required|string',
-            'answer' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $validatedData = $validator->validated();
+        $validatedData = $request->validated();
         $user = Auth::user();
         $validatedData['admin_id'] = $user->id;
 
@@ -77,30 +52,12 @@ class FaqController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateRequest $request, $id)
     {
         $faq = $this->faqService->getFaqById($id);
 
-        if (!$faq) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Faq not found.',
-            ], 404);
-        }
+        $validatedData = $request->validated();
 
-        $validator = Validator::make($request->all(), [
-            'question' => 'nullable|string',
-            'answer' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $validatedData = $validator->validated();
         $faq = $this->faqService->updateFaq($faq, $validatedData);
 
         return response()->json([
@@ -113,13 +70,6 @@ class FaqController extends Controller
     public function destroy($id)
     {
         $faq = $this->faqService->getFaqById($id);
-
-        if (!$faq) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Faq not found.',
-            ], 404);
-        }
 
         $this->faqService->deleteFaq($faq);
 

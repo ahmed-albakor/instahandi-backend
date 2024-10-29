@@ -5,79 +5,54 @@ namespace App\Services\System;
 use App\Models\Image;
 use App\Models\Location;
 use App\Models\ServiceRequest;
+use App\Services\Helper\FilterService;
 use App\Services\Helper\ImageService;
 use Illuminate\Support\Facades\Auth;
 
 class ServiceRequestService
 {
-    public function index($search = null, $limit = 20, $sortField = 'created_at', $sortOrder = 'desc')
+    public function index()
     {
 
         $user = Auth::user();
 
-        $query = ServiceRequest::query()->with(['location']);
-
-        $query->when($search, function ($query, $search) {
-            return $query->where('title', 'like', "%{$search}%")
-                ->orWhere('code', 'like', "%{$search}%")
-                ->orWhere('description', 'like', "%{$search}%");
-        });
-
-
-        if (request('status')) {
-            $query->where('status', request('status'));
-        }
-
-        if (request('payment_type')) {
-            $query->where('payment_type', request('payment_type'));
-        }
-
-        $query->when(request('price_min'), function ($query, $price_min) {
-            return $query->where('price', '>=', $price_min);
-        });
-
-        $query->when(request('price_max'), function ($query, $price_max) {
-            return $query->where('price', '<=', $price_max);
-        });
-
-        if ($user->role == 'client') {
-            $query->where('client_id', $user->client->id);
-        } else {
-            if (request('client_id')) {
-                $query->where('client_id', request('client_id'));
-            }
-        }
-
-
-        $query->when(request('created_at_from'), function ($query, $created_at_from) {
-            return $query->whereDate('created_at', '>=', $created_at_from);
-        });
-
-        $query->when(request('created_at_to'), function ($query, $created_at_to) {
-            return $query->whereDate('created_at', '<=', $created_at_to);
-        });
-
-        $allowedSortFields = ['title', 'code', 'price', 'created_at', 'client_id'];
-
-        if (!in_array($sortField, $allowedSortFields)) {
-            $sortField = 'created_at';
-        }
-
-        $query->orderBy($sortField, $sortOrder);
-
-        if ($user->role == 'vendor' || $user->role == 'admin') {
-            $query->with(['client.user']);
-        }
+        $query = ServiceRequest::query()->with(['location', 'images', 'client.user']);
 
 
 
-        return $query->paginate($limit);
+        $searchFields = ['code', 'title', 'description'];
+        $numericFields = ['price'];
+        $dateFields = ['created_at'];
+        $exactMatchFields = ['payment_type', 'status', 'client_id'];
+        $inFields = [];
+
+        $serviceRequests =  FilterService::applyFilters(
+            $query,
+            request()->all(),
+            $searchFields,
+            $numericFields,
+            $dateFields,
+            $exactMatchFields,
+            $inFields
+        );
+
+        return $serviceRequests;
     }
 
 
     public function show($id)
     {
-        return ServiceRequest::find($id);
+        $serviceRequest =  ServiceRequest::find($id);
+
+        if (!$serviceRequest) {
+            abort(
+                response()->json([
+                    'success' => false,
+                    'message' => 'Service request not found.',
+                ], 404)
+            );
+        }
+        return $serviceRequest;
     }
 
     public function create($validatedData)
@@ -185,16 +160,4 @@ class ServiceRequestService
         }
     }
 
-    public function checkPermission(ServiceRequest $serviceRequest)
-    {
-        $user = Auth::user();
-
-        if ($user->role == 'client') {
-            if ($user->client->id != $serviceRequest->client_id) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 }

@@ -4,26 +4,47 @@ namespace App\Services\System;
 
 use App\Models\Service;
 use App\Models\Image;
+use App\Services\Helper\FilterService;
 use App\Services\Helper\ImageService;
 
 class ServiceService
 {
     public function getServiceById($id)
     {
-        return Service::find($id);
+        $service = Service::find($id);
+
+
+        abort(
+            response()->json([
+                'success' => false,
+                'message' => 'Service not found.',
+            ], 404)
+        );
+
+        return $service;
     }
 
-    public function getAllServices($search, $limit)
+    public function getAllServices()
     {
-        return Service::query()
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($q) use ($search) {
-                    $q->where('code', 'like', "%{$search}%")
-                        ->orWhere('name', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-                });
-            })
-            ->paginate($limit ?? 20);
+        $query = Service::query();
+
+        $searchFields = ['code', 'name', 'description'];
+        $numericFields = [];
+        $dateFields = ['created_at'];
+        $exactMatchFields = [];
+        $inFields = [];
+
+        $services =  FilterService::applyFilters(
+            $query,
+            request()->all(),
+            $searchFields,
+            $numericFields,
+            $dateFields,
+            $exactMatchFields,
+            $inFields
+        );
+
+        return $services;
     }
 
     public function createService($validatedData)
@@ -73,11 +94,6 @@ class ServiceService
     {
         Image::where('code', $service->code)->delete();
         $service->delete();
-    }
-
-    public function restoreService($service)
-    {
-        $service->restore();
     }
 
     public function storeAdditionalImages($images, $code)

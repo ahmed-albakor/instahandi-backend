@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ServiceRequest\CreateRequest;
+use App\Http\Requests\ServiceRequest\UpdateRequest;
+use App\Http\Resources\ServiceRequestResource;
+use App\Models\Image;
 use App\Models\ServiceRequest;
+use App\Services\Helper\ResponseService;
 use App\Services\System\ServiceRequestService;
 use GuzzleHttp\Psr7\ServerRequest;
 use Illuminate\Http\Request;
@@ -10,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\HasHiddenFields;
+use ServiceRequestPermission;
 
 class ServiceRequestController extends Controller
 {
@@ -22,31 +28,12 @@ class ServiceRequestController extends Controller
 
     public function index(Request $request)
     {
-        $user = Auth::user();
-
-        $search = $request->input('search');
-        $limit = $request->input('limit', 20);
-
-        $serviceRequests = $this->serviceRequestService->index($search, $limit);
-
-        $serviceRequests->getCollection()->transform(function ($serviceRequest) {
-            $serviceRequest->images = $serviceRequest->getImages();
-            if ($serviceRequest->client->user) {
-                $serviceRequest->client->user->makeHidden(HasHiddenFields::getUserHiddenFields());
-                $serviceRequest->client->user->profile_photo = $serviceRequest->client->user->getProfilePhoto();
-            }
-            return $serviceRequest;
-        });
+        $serviceRequests = $this->serviceRequestService->index();
 
         return response()->json([
             'success' => true,
-            'data' => $serviceRequests->items(),
-            'meta' => [
-                'current_page' => $serviceRequests->currentPage(),
-                'last_page' => $serviceRequests->lastPage(),
-                'per_page' => $serviceRequests->perPage(),
-                'total' => $serviceRequests->total(),
-            ],
+            'data' => ServiceRequestResource::collection($serviceRequests->items()),
+            'meta' => ResponseService::meta($serviceRequests),
         ]);
     }
 
@@ -55,75 +42,19 @@ class ServiceRequestController extends Controller
     {
         $serviceRequest = $this->serviceRequestService->show($id);
 
-        if (!$serviceRequest) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Service request not found.',
-            ], 404);
-        }
+        $serviceRequest->load(['location', 'client.user', 'proposals.vendor.user', 'images']);
 
-        $permission = $this->serviceRequestService->checkPermission($serviceRequest);
-
-        if (!$permission) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Permissions error.',
-            ], 403);
-        }
-
-        $serviceRequest->images = $serviceRequest->getImages();
-
-        $serviceRequest->load(['location', 'client.user', 'proposals.vendor.user']);
-
-        if ($serviceRequest->client && $serviceRequest->client->user) {
-            $serviceRequest->client->user->profile_photo = $serviceRequest->client->user->getProfilePhoto();
-            $serviceRequest->client->user->makeHidden(HasHiddenFields::getUserHiddenFields());
-        }
-
-        $serviceRequest->proposals->each(function ($proposal) {
-            if ($proposal->vendor && $proposal->vendor->user) {
-                $proposal->vendor->user->makeHidden(HasHiddenFields::getUserHiddenFields());
-                $proposal->vendor->user->profile_photo = $proposal->vendor->user->getProfilePhoto();
-            }
-        });
 
         return response()->json([
             'success' => true,
-            'data' => $serviceRequest,
+            'data' => new ServiceRequestResource($serviceRequest),
         ]);
     }
 
-    public function store(Request $request)
+    public function store(CreateRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'payment_type' => 'required|in:flat_rate,hourly_rate',
-            'estimated_hours' => 'required|string|max:50',
-            'price' => 'required|numeric|min:0',
-            'start_date' => 'required|date',
-            'completion_date' => 'required|date',
-            'service_id' => 'required|exists:services,id,deleted_at,NULL',
-            'client_id' => 'required|exists:clients,id,deleted_at,NULL',
-            // Location Validator
-            'street_address' => 'required|string',
-            'exstra_address' => 'nullable|string',
-            'country' => 'required|string|max:50',
-            'city' => 'required|string|max:50',
-            'state' => 'required|string|max:20',
-            'zip_code' => 'required|string|max:20',
-            // Images Validator
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:8096',
-        ]);
+        $validatedData = $request->validated();
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $validatedData = $validator->validated();
         $serviceRequest = $this->serviceRequestService->create($validatedData);
 
         $serviceRequest->images = $serviceRequest->getImages();
@@ -136,54 +67,13 @@ class ServiceRequestController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateRequest $request, $id)
     {
         $serviceRequest = $this->serviceRequestService->show($id);
 
-        if (!$serviceRequest) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Service request not found.',
-            ], 404);
-        }
+        ServiceRequestPermission::update($serviceRequest);
 
-        $permission = $this->serviceRequestService->checkPermission($serviceRequest);
-
-        if (!$permission) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Permissions error.',
-            ], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'nullable|in:pending,accepted,completed,rejected,canceled',
-            'payment_type' => 'nullable|in:flat_rate,hourly_rate',
-            'estimated_hours' => 'nullable|string|max:50',
-            'price' => 'nullable|numeric|min:0',
-            'start_date' => 'nullable|date',
-            'completion_date' => 'nullable|date',
-            // Location Validator
-            'street_address' => 'nullable|sometimes|string',
-            'exstra_address' => 'nullable|string',
-            'country' => 'nullable|string|max:50',
-            'city' => 'nullable|string|max:50',
-            'state' => 'nullable|string|max:20',
-            'zip_code' => 'nullable|string|max:20',
-            // Images Validator
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:8096',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $validatedData = $validator->validated();
+        $validatedData = $request->validated();
         $serviceRequest = $this->serviceRequestService->update($serviceRequest, $validatedData);
 
         $serviceRequest->images = $serviceRequest->getImages();
@@ -201,19 +91,13 @@ class ServiceRequestController extends Controller
     {
         $serviceRequest = $this->serviceRequestService->show($id);
 
-        if (!$serviceRequest) {
+        ServiceRequestPermission::destory($serviceRequest);
+
+
+        if (!in_array($serviceRequest->status, ['canceled', 'rejected', 'pending'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Service Request request not found.',
-            ], 404);
-        }
-
-        $permission = $this->serviceRequestService->checkPermission($serviceRequest);
-
-        if (!$permission) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Permissions error.',
+                'message' => "You cannot delete the service request in {$serviceRequest->status} status.",
             ], 403);
         }
 
@@ -230,21 +114,8 @@ class ServiceRequestController extends Controller
     {
         $serviceRequest = $this->serviceRequestService->show($id);
 
-        if (!$serviceRequest) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Service Request not found.',
-            ], 404);
-        }
+        ServiceRequestPermission::update($serviceRequest);
 
-        $permission = $this->serviceRequestService->checkPermission($serviceRequest);
-
-        if (!$permission) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Permissions error.',
-            ], 403);
-        }
 
         $validator = Validator::make($request->all(), [
             'additional_images' => 'array|required',
@@ -260,11 +131,14 @@ class ServiceRequestController extends Controller
             ], 422);
         }
 
-        $this->serviceRequestService->storeAdditionalImages($request->file('additional_images'), $service->code);
+        $this->serviceRequestService->storeAdditionalImages($request->file('additional_images'), $serviceRequest->code);
+
+        $new_images = Image::where('code', $serviceRequest->code)->get();
 
         return response()->json([
             'success' => true,
             'message' => 'Additional images uploaded successfully.',
+            'data' => $new_images,
         ]);
     }
 
@@ -272,21 +146,7 @@ class ServiceRequestController extends Controller
     {
         $serviceRequest = $this->serviceRequestService->show($id);
 
-        if (!$serviceRequest) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Service not found.',
-            ], 404);
-        }
-
-        $permission = $this->serviceRequestService->checkPermission($serviceRequest);
-
-        if (!$permission) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Permissions error.',
-            ], 403);
-        }
+        ServiceRequestPermission::update($serviceRequest);
 
         $validator = Validator::make($request->all(), [
             'image_ids' => 'required|array',
@@ -302,7 +162,7 @@ class ServiceRequestController extends Controller
             ], 422);
         }
 
-        $this->serviceRequestService->deleteAdditionalImages($validator->validated()['image_ids'], $service->code);
+        $this->serviceRequestService->deleteAdditionalImages($validator->validated()['image_ids'], $serviceRequest->code);
 
         return response()->json([
             'success' => true,

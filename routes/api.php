@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceRequestController;
@@ -122,5 +123,13 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
         Route::post('proposals/{id}', [ProposalController::class, 'update']);
         Route::delete('proposals/{id}', [ProposalController::class, 'destroy']);
         ########## Proposals End ########## 
+        
+        
+        
+        Route::get('orders/{id}', [OrderController::class, 'show']);
+        Route::get('orders/', [OrderController::class, 'index']);
+        Route::post('orders/', [OrderController::class, 'create']);
+        Route::post('orders/{id}', [OrderController::class, 'update']);
+        Route::delete('orders/', [OrderController::class, 'destroy']);
 
     });

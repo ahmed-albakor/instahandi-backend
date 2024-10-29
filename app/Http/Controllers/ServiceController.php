@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Service\CreateRequest;
+use App\Http\Requests\Service\UpdateRequest;
+use App\Http\Resources\ServiceResource;
+use App\Services\Helper\ResponseService;
 use App\Services\System\ServiceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,58 +24,29 @@ class ServiceController extends Controller
     {
         $service = $this->serviceService->getServiceById($id);
 
-        if (!$service) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Service not found.',
-            ], 404);
-        }
-
-        $service->main_image = asset("storage/" . $service->main_image);
-        $service->images = $service->getImages();
+        $service->load("images");
 
         return response()->json([
             'success' => true,
-            'data' => $service,
+            'data' => new ServiceResource($service),
         ], 200);
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $search = $request->input('search');
-        $services = $this->serviceService->getAllServices($search, $request->limit);
+        $services = $this->serviceService->getAllServices();
 
         return response()->json([
             'success' => true,
             'data' => $services->items(),
-            'meta' => [
-                'current_page' => $services->currentPage(),
-                'last_page' => $services->lastPage(),
-                'per_page' => $services->perPage(),
-                'total' => $services->total(),
-            ]
+            'meta' => ResponseService::meta($services)
         ]);
     }
 
-    public function create(Request $request)
+    public function create(CreateRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'main_image' => 'required|image|mimes:jpeg,png,jpg,webp,svg|max:8096',
-            'description' => 'nullable|string',
-            'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:8096',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $service = $this->serviceService->createService($validator->validated());
-
-        $service->main_image = asset("storage/" . $service->main_image);
+        $service = $this->serviceService->createService($request->validated());
 
         return response()->json([
             'success' => true,
@@ -80,34 +55,11 @@ class ServiceController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateRequest $request, $id)
     {
         $service = $this->serviceService->getServiceById($id);
 
-        if (!$service) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Service not found.',
-            ], 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'nullable|string|max:255',
-            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:8096',
-            'description' => 'nullable|string',
-            'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:8096',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $service = $this->serviceService->updateService($service, $validator->validated());
-
-        $service->main_image = asset("storage/" . $service->main_image);
+        $service = $this->serviceService->updateService($service, $request->validated());
 
         return response()->json([
             'success' => true,
@@ -120,13 +72,6 @@ class ServiceController extends Controller
     {
         $service = $this->serviceService->getServiceById($id);
 
-        if (!$service) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Service not found.',
-            ], 404);
-        }
-
         $this->serviceService->deleteService($service);
 
         return response()->json([
@@ -135,36 +80,9 @@ class ServiceController extends Controller
         ]);
     }
 
-    public function restore($id)
-    {
-        $service = $this->serviceService->getServiceById($id);
-
-        if (!$service) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Service not found in archive.',
-            ], 404);
-        }
-
-        $this->serviceService->restoreService($service);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Service restored successfully.',
-            'data' => $service,
-        ]);
-    }
-
     public function uploadAdditionalImages(Request $request, $id)
     {
         $service = $this->serviceService->getServiceById($id);
-
-        if (!$service) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Service not found.',
-            ], 404);
-        }
 
         $validator = Validator::make($request->all(), [
             'additional_images' => 'array|required',
@@ -191,13 +109,6 @@ class ServiceController extends Controller
     public function deleteAdditionalImages(Request $request, $id)
     {
         $service = $this->serviceService->getServiceById($id);
-
-        if (!$service) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Service not found.',
-            ], 404);
-        }
 
         $validator = Validator::make($request->all(), [
             'image_ids' => 'required|array',

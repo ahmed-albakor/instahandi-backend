@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class User extends Authenticatable
 {
@@ -64,11 +65,17 @@ class User extends Authenticatable
         ];
     }
 
+    // protected $appends = ['images'];
 
-    public function  getProfilePhoto()
+
+    protected function profilePhoto(): Attribute
     {
-        return $this->profile_photo = asset("storage/" . $this->profile_photo);
+        return Attribute::make(
+            get: fn(?string $value) => $value ? asset("storage/" . $value) : null,
+        );
     }
+
+
 
     public function vendor()
     {

@@ -55,11 +55,9 @@ class ServiceRequest extends Model
         return $this->hasMany(Image::class, 'code', 'code');
     }
 
-    public function getImages()
+    public function orders()
     {
-        return $this->images->map(function ($image) {
-            $image->path = asset("storage/" . $image->path);
-            return $image;
-        });
+        return $this->hasMany(Order::class);
     }
+
 }
