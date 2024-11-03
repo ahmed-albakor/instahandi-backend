@@ -26,7 +26,7 @@ class CreateOrderRequest extends FormRequest
             'vendor_id' => 'required|exists:vendors,id,deleted_at,NULL',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'status' => 'required|string',
+            'status' => 'required|in:pending,execute,completed,canceled',
             'price' => 'required|numeric|min:0',
             'payment_type' => 'required|string',
             'works_hours' => 'nullable|integer',

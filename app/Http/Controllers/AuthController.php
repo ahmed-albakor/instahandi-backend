@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\ForgetPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\RestPasswordRequest;
 use App\Http\Requests\Auth\VerifyCodeRequest;
 use App\Models\User;
 use App\Services\System\AuthService;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
@@ -77,6 +77,7 @@ class AuthController extends Controller
             'code_expiry_date' => $codeExpiry,
         ]);
 
+        # TODO
         // Mail::to($user->email)->send(new VerifyEmail($verifyCode));
 
         return response()->json([
@@ -114,6 +115,40 @@ class AuthController extends Controller
             'role' => $user->role,
             'user' => $user,
         ]);
+    }
+
+    public function forgetPassword(ForgetPasswordRequest $request)
+    {
+
+        $res = $this->authService->forgetPassword($request->validated());
+
+        if (!$res) {
+            return response()->json([
+                'success' => false,
+                'message' => 'this email not found in InstaHandi',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verify Code send to Email, check it.',
+        ]);
+    }
+
+    public function resetPassword(RestPasswordRequest $request)
+    {
+        $res = $this->authService->resetPassword($request->validated());
+
+        if ($res['success'] == true) {
+            return response()->json(
+                [
+                    'success' => true,
+                    'access_token' => $res['token'],
+                    'message' => 'Password updated successfully'
+                ],
+                201,
+            );
+        }
     }
 
     public function logout()

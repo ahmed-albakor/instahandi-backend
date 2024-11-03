@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Order\CreateOrderRequest;
 use App\Http\Requests\Order\UpdateOrderRequest;
+use App\Http\Requests\Order\UpdateStatusRequest;
 use App\Http\Resources\OrderResource;
 use App\Permissions\OrderPermission;
 use App\Services\Helper\ResponseService;
@@ -36,6 +37,8 @@ class OrderController extends Controller
         $relationships = ['serviceRequest', 'workLocation', 'images', 'vendor.user', 'proposal'];
 
         $order = $this->orderService->getOrderById($id, $relationships);
+
+        OrderPermission::show($order);
 
         return response()->json([
             'success' => true,
@@ -80,6 +83,24 @@ class OrderController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Order deleted successfully.',
+        ]);
+    }
+
+
+    public function updateStatus($id, UpdateStatusRequest $request)
+    {
+        $order = $this->orderService->getOrderById($id);
+
+        OrderPermission::update($order);
+
+        $validated = $request->validated();
+
+        $order = $this->orderService->updateOrderStatus($order, $validated['status']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order updated successfully.',
+            'data' => new OrderResource($order),
         ]);
     }
 }

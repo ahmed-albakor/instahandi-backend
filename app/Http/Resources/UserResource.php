@@ -12,7 +12,11 @@ class UserResource extends JsonResource
         $hidden = true;
         if (Auth::check()) {
             $user = Auth::user();
-            $hidden = $user->role != $this->role;
+            if ($user->role == 'admin') {
+                $hidden = false;
+            } elseif ($user->role == $this->role) {
+                $hidden = $user->id != $this->id;
+            }
         }
         return [
             'id' => $this->id,

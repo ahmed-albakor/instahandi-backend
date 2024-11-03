@@ -37,4 +37,15 @@ class VendorController extends Controller
             'message' => 'Profile setup successfully.',
         ]);
     }
+
+
+    public function getData()
+    {
+        $user = $this->vendorService->profileData();
+
+        return response()->json([
+            'success' => true,
+            'data' => $user
+        ], 200);
+    }
 }

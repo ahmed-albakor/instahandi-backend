@@ -4,7 +4,7 @@ namespace App\Http\Requests\Order;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateOrderRequest extends FormRequest
+class UpdateStatusRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,14 +22,7 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'nullable|in:pending,execute,completed,canceled',
-            'price' => 'nullable|numeric|min:0',
-            'payment_type' => 'nullable|string',
-            'works_hours' => 'nullable|integer',
-            'start_date' => 'nullable|date',
-            'completion_date' => 'nullable|date',
+            'status' => 'required|in:execute,completed',
         ];
     }
 }

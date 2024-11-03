@@ -4,6 +4,7 @@ namespace App\Services\System;
 
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -58,6 +59,51 @@ class AuthService
         ]);
 
         return $user;
+    }
+
+    public function forgetPassword($requestData)
+    {
+        $email = $requestData['email'];
+
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return false;
+        }
+
+        $verifyCode = rand(100000, 999999);
+        $codeExpiry = Carbon::now()->addMinutes(30);
+
+        $user->update([
+            'verify_code' => $verifyCode,
+            'code_expiry_date' => $codeExpiry,
+        ]);
+
+        # TODO
+        // Mail::to($user->email)->send(new VerifyEmail($verifyCode));
+
+        return true;
+    }
+
+    public function resetPassword($requestData)
+    {
+        $user_id = Auth::id();
+
+        $user = User::find($user_id);
+
+        $password = $requestData['password'];
+        $user->update([
+            'password' => Hash::make($password),
+        ]);
+
+        $user->tokens()->delete();
+
+        $newToken = $user->createToken('NewTokenName')->plainTextToken;
+
+        return [
+            'success' => true,
+            'token' => $newToken,
+        ];
     }
 
     public function logout($token)

@@ -5,7 +5,9 @@ namespace App\Services\System;
 use App\Models\Vendor;
 use App\Models\Location;
 use App\Models\Image;
+use App\Models\User;
 use App\Services\Helper\ImageService;
+use Illuminate\Support\Facades\Auth;
 
 class VendorService
 {
@@ -60,6 +62,17 @@ class VendorService
             'description' => $validatedData['description'] ?? null,
             'profile_setup' => true,
         ]);
+
+        return $user;
+    }
+
+
+    public function profileData()
+    {
+        $user_id = Auth::id();
+        $user = User::find($user_id);
+
+        $user->load(['vendor', 'images', 'location']);
 
         return $user;
     }

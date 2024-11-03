@@ -13,9 +13,6 @@ class ServiceRequestService
 {
     public function index()
     {
-
-        $user = Auth::user();
-
         $query = ServiceRequest::query()->with(['location', 'images', 'client.user']);
 
 
@@ -160,4 +157,31 @@ class ServiceRequestService
         }
     }
 
+
+    public function acceptServiceRequest($serviceRequest, orderService $orderService)
+    {
+
+        $user = Auth::user();
+
+        $order =  $orderService->createOrder([
+            'service_request_id' => $serviceRequest->id,
+            'status' => 'pending',
+            'title' => $serviceRequest->description,
+            'description' => $serviceRequest->description,
+            'vendor_id' => $user->vendor->id,
+            'price' => $serviceRequest->price,
+            'payment_type' => $serviceRequest->payment_type,
+        ]);
+
+        $serviceRequest->update(
+            [
+                'status' => 'accepted',
+            ]
+        );
+
+        // TODO : Send Notification to Cleint for tell him
+
+
+        return $order;
+    }
 }

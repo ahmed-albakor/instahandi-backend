@@ -6,15 +6,12 @@ use App\Http\Requests\ServiceRequest\CreateRequest;
 use App\Http\Requests\ServiceRequest\UpdateRequest;
 use App\Http\Resources\ServiceRequestResource;
 use App\Models\Image;
-use App\Models\ServiceRequest;
 use App\Services\Helper\ResponseService;
+use App\Services\System\OrderService;
 use App\Services\System\ServiceRequestService;
-use GuzzleHttp\Psr7\ServerRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
-use App\Traits\HasHiddenFields;
 use ServiceRequestPermission;
 
 class ServiceRequestController extends Controller
@@ -26,7 +23,7 @@ class ServiceRequestController extends Controller
         $this->serviceRequestService = $serviceRequestService;
     }
 
-    public function index(Request $request)
+    public function index()
     {
         $serviceRequests = $this->serviceRequestService->index();
 
@@ -42,7 +39,7 @@ class ServiceRequestController extends Controller
     {
         $serviceRequest = $this->serviceRequestService->show($id);
 
-        $serviceRequest->load(['location', 'client.user', 'proposals.vendor.user', 'images']);
+        $serviceRequest->load(['location', 'client.user.location', 'proposals.vendor.user', 'images']);
 
 
         return response()->json([
@@ -168,5 +165,30 @@ class ServiceRequestController extends Controller
             'success' => true,
             'message' => 'Selected images deleted successfully.',
         ]);
+    }
+
+
+    ########## vendor ########## 
+
+    public function acceptServiceRequset($id, OrderService $orderService)
+    {
+        $serviceRequest = $this->serviceRequestService->show($id);
+
+        if ($serviceRequest->status != 'pending') {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'You cannot accept the service request if it not in status pending',
+                ]
+            );
+        }
+
+        $order = $this->serviceRequestService->acceptServiceRequest($serviceRequest, $orderService);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Jop Created Successfully',
+            'data' => $order,
+        ], 201);
     }
 }

@@ -122,4 +122,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Location::class, 'code', 'code');
     }
+
+    public function images()
+    {
+        return $this->hasMany(Image::class, 'code', 'code');
+    }
 }

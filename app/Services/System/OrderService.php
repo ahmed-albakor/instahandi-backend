@@ -5,6 +5,7 @@ namespace App\Services\System;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Services\Helper\FilterService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class OrderService
@@ -12,17 +13,23 @@ class OrderService
     public function index()
     {
 
+        $user = Auth::user();
+
         $query = Order::query()->with([
             'serviceRequest',
             'vendor.user',
             'proposal'
         ]);
 
+        if ($user->role == 'vendor') {
+            $query->where('vendor_id', $user->vendor->id);
+        }
+
         $searchFields = ['code', 'title', 'description'];
         $numericFields = ['price', 'works_hours'];
         $dateFields = ['created_at', 'start_date', 'completion_date'];
         $exactMatchFields = ['service_request_id', 'vendor_id', 'proposal_id', 'status', 'payment_type'];
-        $inFields = ['status'];
+        $inFields = [];
 
         $orders =  FilterService::applyFilters(
             $query,
@@ -39,7 +46,7 @@ class OrderService
 
     public function getOrderById($id, $relationships = [])
     {
-        $order = Order::find($id)->load($relationships);
+        $order = Order::find($id);
 
         if (!$order) {
             abort(
@@ -49,6 +56,8 @@ class OrderService
                 ], 404)
             );
         }
+
+        $order->load($relationships);
 
         return $order;
     }
@@ -63,6 +72,24 @@ class OrderService
 
     public function updateOrder(Order $order, array $data)
     {
+        $order->update($data);
+        return $order;
+    }
+
+
+    public function updateOrderStatus(Order $order, $status)
+    {
+
+        $data = [];
+        if ($status == 'execute') {
+            $data['start_date'] = Carbon::now();
+        } elseif ($status == 'completed') {
+            $data['completion_date'] = Carbon::now();
+        }
+
+        $data['status'] = $status;
+
+
         $order->update($data);
         return $order;
     }

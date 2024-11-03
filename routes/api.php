@@ -32,6 +32,8 @@ Route::prefix('auth')
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/verify-code', [AuthController::class, 'verifyCode']);
         Route::post('/send-code', [AuthController::class, 'sendCode'])->middleware('auth:sanctum');
+        Route::post('/forget-password', [AuthController::class, 'forgetpassword']);
+        Route::post('/reset-password', [AuthController::class, 'resetpassword'])->middleware('auth:sanctum');
         Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
     });
 
@@ -56,10 +58,13 @@ Route::middleware([ClientMiddleware::class, 'auth:sanctum'])
 Route::middleware([VendorMiddleware::class, 'auth:sanctum'])
     ->prefix('vendors')
     ->group(function () {
+
         Route::post('/setup-profile', [VendorController::class, 'setupProfile']);
+        Route::get('/me/', [VendorController::class, 'getData']);
 
         Route::get('/service-requests/{id}', [ServiceRequestController::class, 'show']);
         Route::get('/service-requests', [ServiceRequestController::class, 'index']);
+        Route::post('/service-requests/{id}/accept', [ServiceRequestController::class, 'acceptServiceRequset']);
 
 
         ########## Proposals Start ########## 
@@ -69,6 +74,13 @@ Route::middleware([VendorMiddleware::class, 'auth:sanctum'])
         Route::post('proposals/{id}', [ProposalController::class, 'update']);
         Route::delete('proposals/{id}', [ProposalController::class, 'destroy']);
         ########## Proposals End ########## 
+
+
+        ########## Order Start ########## 
+        Route::get('orders/', [OrderController::class, 'index']);
+        Route::get('orders/{id}', [OrderController::class, 'show']);
+        Route::post('orders/{id}/status', [OrderController::class, 'updateStatus']);
+        ########## Order End ########## 
     });
 
 
@@ -123,13 +135,12 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
         Route::post('proposals/{id}', [ProposalController::class, 'update']);
         Route::delete('proposals/{id}', [ProposalController::class, 'destroy']);
         ########## Proposals End ########## 
-        
-        
-        
+
+
+
         Route::get('orders/{id}', [OrderController::class, 'show']);
         Route::get('orders/', [OrderController::class, 'index']);
         Route::post('orders/', [OrderController::class, 'create']);
         Route::post('orders/{id}', [OrderController::class, 'update']);
         Route::delete('orders/', [OrderController::class, 'destroy']);
-
     });
