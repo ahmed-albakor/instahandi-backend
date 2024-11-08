@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('vendor_id')->constrained('vendors')->onDelete('cascade');
             $table->text('message');
             $table->decimal('price', 10, 2)->default(0);
+            $table->enum('status', ['pending', 'accepted', 'rejected', 'canceled'])->default('pending');
             $table->enum('payment_type', ['flat_rate', 'hourly_rate']);
             $table->timestamps();
             $table->softDeletes();

@@ -19,6 +19,7 @@ class Proposal extends Model
         'vendor_id',
         'message',
         'price',
+        'status',
         'payment_type',
     ];
 

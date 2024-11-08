@@ -28,6 +28,7 @@ Route::get('/home-data', [HomeController::class, 'getData']);
 
 Route::prefix('auth')
     ->group(function () {
+        ########## Auth Start ########## 
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/verify-code', [AuthController::class, 'verifyCode']);
@@ -35,12 +36,15 @@ Route::prefix('auth')
         Route::post('/forget-password', [AuthController::class, 'forgetpassword']);
         Route::post('/reset-password', [AuthController::class, 'resetpassword'])->middleware('auth:sanctum');
         Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+        ########## Auth End ########## 
     });
 
 Route::middleware([ClientMiddleware::class, 'auth:sanctum'])
     ->prefix('clients')
     ->group(function () {
         Route::post('/setup-profile', [ClientController::class, 'setupProfile']);
+        Route::get('/me/', [ClientController::class, 'getData']);
+
 
 
         ########## ServiceRequests Start ########## 
@@ -51,7 +55,16 @@ Route::middleware([ClientMiddleware::class, 'auth:sanctum'])
         Route::delete('/service-requests/{id}', [ServiceRequestController::class, 'destroy']);
         Route::post('/service-requests/{id}/upload-images', [ServiceRequestController::class, 'uploadAdditionalImages']);
         Route::post('/service-requests/{id}/delete-images', [ServiceRequestController::class, 'deleteAdditionalImages']);
+        # Vendor
+        Route::post('/service-requests/{id}/hire-vendor', [ServiceRequestController::class, 'hireVendor']);
         ########## ServiceRequests End ########## 
+
+
+
+
+        ########## Proposals Start ########## 
+        Route::post('/proposals/{id}/reject', [ProposalController::class, 'rejectProposal']);
+        ########## Proposals End ########## 
     });
 
 
@@ -138,9 +151,11 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
 
 
 
+        ########## Orders Start ########## 
         Route::get('orders/{id}', [OrderController::class, 'show']);
         Route::get('orders/', [OrderController::class, 'index']);
         Route::post('orders/', [OrderController::class, 'create']);
         Route::post('orders/{id}', [OrderController::class, 'update']);
         Route::delete('orders/', [OrderController::class, 'destroy']);
+        ########## Orders End ########## 
     });

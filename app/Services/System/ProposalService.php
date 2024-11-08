@@ -34,13 +34,13 @@ class ProposalService
 
     public function getProposalById($id)
     {
-        $proposal =   Proposal::find($id);
+        $proposal = Proposal::find($id);
 
         if (!$proposal) {
             abort(
                 response()->json([
                     'success' => false,
-                    'message' => 'Order not found.',
+                    'message' => 'Proposal not found.',
                 ], 404)
             );
         }

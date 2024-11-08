@@ -5,7 +5,9 @@ namespace App\Services\System;
 use App\Models\Client;
 use App\Models\Image;
 use App\Models\Location;
+use App\Models\User;
 use App\Services\Helper\ImageService;
+use Illuminate\Support\Facades\Auth;
 
 class ClientService
 {
@@ -54,6 +56,17 @@ class ClientService
             'description' => $validatedData['description'] ?? null,
             'profile_setup' => true,
         ]);
+
+        return $user;
+    }
+
+
+    public function profileData()
+    {
+        $user_id = Auth::id();
+        $user = User::find($user_id);
+
+        $user->load(['client', 'images', 'location']);
 
         return $user;
     }

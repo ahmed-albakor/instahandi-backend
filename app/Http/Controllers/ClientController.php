@@ -37,4 +37,15 @@ class ClientController extends Controller
             'message' => 'Profile setup successfully.',
         ]);
     }
+
+
+    public function getData()
+    {
+        $user = $this->clientService->profileData();
+
+        return response()->json([
+            'success' => true,
+            'data' => $user
+        ], 200);
+    }
 }

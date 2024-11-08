@@ -4,6 +4,7 @@ namespace App\Services\System;
 
 use App\Models\Image;
 use App\Models\Location;
+use App\Models\Proposal;
 use App\Models\ServiceRequest;
 use App\Services\Helper\FilterService;
 use App\Services\Helper\ImageService;
@@ -180,6 +181,37 @@ class ServiceRequestService
         );
 
         // TODO : Send Notification to Cleint for tell him
+
+
+        return $order;
+    }
+
+
+    public function hireVendor($serviceRequest, orderService $orderService, $proposal)
+    {
+        $order =  $orderService->createOrder([
+            'service_request_id' => $serviceRequest->id,
+            'proposal_id' => $proposal->id,
+            'status' => 'pending',
+            'title' => $serviceRequest->description,
+            'description' => $proposal->message,
+            'vendor_id' => $proposal->vendor_id,
+            'price' => $proposal->price,
+            'payment_type' => $proposal->payment_type,
+        ]);
+
+        $serviceRequest->update(
+            [
+                'status' => 'accepted',
+            ]
+        );
+        $proposal->update(
+            [
+                'status' => 'accepted',
+            ]
+        );
+
+        // TODO : Send Notification to Vendor for tell him
 
 
         return $order;

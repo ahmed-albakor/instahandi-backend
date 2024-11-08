@@ -3,16 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ServiceRequest\CreateRequest;
+use App\Http\Requests\ServiceRequest\HireVendorRequest;
 use App\Http\Requests\ServiceRequest\UpdateRequest;
 use App\Http\Resources\ServiceRequestResource;
 use App\Models\Image;
+use App\Models\Proposal;
+use App\Permissions\ServiceRequestPermission;
 use App\Services\Helper\ResponseService;
 use App\Services\System\OrderService;
 use App\Services\System\ServiceRequestService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use ServiceRequestPermission;
 
 class ServiceRequestController extends Controller
 {
@@ -188,6 +189,38 @@ class ServiceRequestController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Jop Created Successfully',
+            'data' => $order,
+        ], 201);
+    }
+
+    public function hireVendor($id, OrderService $orderService, HireVendorRequest $request)
+    {
+        $serviceRequest = $this->serviceRequestService->show($id);
+
+        $proposal = Proposal::find($request->proposal_id);
+
+        ServiceRequestPermission::hireVendor($serviceRequest, $proposal);
+
+        $acceptedProposal = $serviceRequest->proposals()
+            ->where('status', 'accepted')
+            ->exists();
+
+
+        if ($acceptedProposal || $serviceRequest->status == 'accepted') {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'You have already hired a vendor or the request is still pending.',
+                ],
+                400
+            );
+        }
+
+        $order = $this->serviceRequestService->hireVendor($serviceRequest, $orderService, $proposal);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor hired successfully.',
             'data' => $order,
         ], 201);
     }

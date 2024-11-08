@@ -111,4 +111,26 @@ class ProposalController extends Controller
             'message' => 'Proposal deleted successfully.',
         ]);
     }
+
+
+    public function rejectProposal($id)
+    {
+
+        $proposal = $this->proposalService->getProposalById($id);
+
+        ProposalPermission::reject($proposal);
+
+        $proposal = $this->proposalService->updateProposal($proposal, [
+            'status' => 'reject',
+        ]);
+
+        // TODO : Send Notification to Vendor for tell him
+
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Proposal reject successfully.',
+            'data' => $proposal,
+        ]);
+    }
 }

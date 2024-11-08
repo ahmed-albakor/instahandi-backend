@@ -69,8 +69,4 @@ class Order extends Model
             'code'
         );
     }
-    
-
-    
-
 }
