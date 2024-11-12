@@ -57,4 +57,9 @@ class Vendor extends Model
         return $this->hasMany(VendorReview::class);
     }
 
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'vendor_services', 'vendor_id', 'service_id');
+    }
 }

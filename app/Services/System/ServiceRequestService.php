@@ -55,6 +55,10 @@ class ServiceRequestService
 
     public function create($validatedData)
     {
+        $user = Auth::user();
+        if ($user->role == 'client') {
+            $validatedData['client_id'] = $user->client->id;
+        }
         $serviceRequest = ServiceRequest::create([
             'code' => 'SRVREQ' . rand(100000, 999999),
             'client_id' => $validatedData['client_id'],

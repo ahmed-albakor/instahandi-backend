@@ -55,8 +55,7 @@ class ServiceRequestController extends Controller
 
         $serviceRequest = $this->serviceRequestService->create($validatedData);
 
-        $serviceRequest->images = $serviceRequest->getImages();
-        $serviceRequest->load(['location']);
+        $serviceRequest->load(['location', 'images']);
 
         return response()->json([
             'success' => true,

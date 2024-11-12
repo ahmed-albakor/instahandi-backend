@@ -33,6 +33,8 @@ class SetupProfileRequest extends FormRequest
             'latitude' => 'nullable|string',
             'has_crew' => 'boolean',
             'crew_members' => 'nullable|json',
+            'service_ids' => 'required|array|max:3',
+            'service_ids.*' => 'integer|exists:services,id',
             // Location validator
             'street_address' => 'required|string',
             'exstra_address' => 'nullable|string',

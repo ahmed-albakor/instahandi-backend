@@ -2,43 +2,13 @@
 
 namespace App\Permissions;
 
-use App\Models\Proposal;
+use App\Models\Order;
+use App\Models\VendorReview;
 use Illuminate\Support\Facades\Auth;
 
-class ProposalPermission
+class VendorReviewPermission
 {
-
-    public static function update(Proposal $proposal)
-    {
-
-        $user = Auth::user();
-
-        switch ($user->role) {
-            case 'admin':
-                $permission = true;
-                break;
-            case 'vendor':
-                $permission = $proposal->vendor_id == $user->vendor->id;
-                break;
-            case 'client':
-                $permission = false;
-                break;
-            default:
-                $permission = false;
-                break;
-        }
-
-
-        if (!$permission) {
-            abort(
-                response()->json([
-                    'success' => false,
-                    'message' => 'Permissions error.',
-                ], 403)
-            );
-        }
-    }
-    public static function destory(Proposal $proposal)
+    public static function show(VendorReview $review)
     {
         $user = Auth::user();
 
@@ -47,10 +17,10 @@ class ProposalPermission
                 $permission = true;
                 break;
             case 'vendor':
-                $permission = $proposal->vendor_id == $user->vendor->id;
+                $permission = true;
                 break;
             case 'client':
-                $permission = false;
+                $permission = true;
                 break;
             default:
                 $permission = false;
@@ -67,27 +37,75 @@ class ProposalPermission
         }
     }
 
-    public static function reject(Proposal $proposal)
+    public static function create(Order $order)
     {
         $user = Auth::user();
 
-        switch ($user->role) {
-            case 'admin':
-                $permission = true;
-                break;
-            case 'vendor':
-                $permission = false;
-                break;
-            case 'client':
-                $permission = $proposal->serviceRequest->client->user->id == $user->id;
-                break;
-            default:
-                $permission = false;
-                break;
-        }
+        $permission = true;
+
+        $permission = $user->role == 'client';
 
         if ($permission)
-            $permission = $proposal->status == 'pending';
+            $permission = $order->serviceRequest->client_id == $user->client->id;
+
+        if (!$permission) {
+            abort(
+                response()->json([
+                    'success' => false,
+                    'message' => 'Permissions error.',
+                ], 403)
+            );
+        }
+    }
+
+    public static function update(VendorReview $review)
+    {
+        $user = Auth::user();
+
+        switch ($user->role) {
+            case 'admin':
+                $permission = true;
+                break;
+            case 'vendor':
+                // Vendors shouldn't update reviews, so permission is false
+                $permission = false;
+                break;
+            case 'client':
+                $permission = $review->client_id == $user->client->id;
+                break;
+            default:
+                $permission = false;
+                break;
+        }
+
+        if (!$permission) {
+            abort(
+                response()->json([
+                    'success' => false,
+                    'message' => 'Permissions error.',
+                ], 403)
+            );
+        }
+    }
+
+    public static function destroy(VendorReview $review)
+    {
+        $user = Auth::user();
+
+        switch ($user->role) {
+            case 'admin':
+                $permission = true;
+                break;
+            case 'client':
+                $permission = $review->client_id == $user->client->id;
+                break;
+            case 'vendor':
+                $permission = false; // Vendors shouldn't delete reviews
+                break;
+            default:
+                $permission = false;
+                break;
+        }
 
         if (!$permission) {
             abort(

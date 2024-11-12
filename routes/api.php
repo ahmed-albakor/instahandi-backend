@@ -8,8 +8,11 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceRequestController;
+use App\Http\Controllers\StripeController;
+use App\Http\Controllers\SystemReviewController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\VendorController;
+use App\Http\Controllers\VendorReviewController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\ClientMiddleware;
 use App\Http\Middleware\VendorMiddleware;
@@ -24,6 +27,17 @@ Route::get('/user', function (Request $request) {
 
 
 Route::get('/home-data', [HomeController::class, 'getData']);
+
+Route::middleware(['auth:sanctum'])
+    ->group(function () {
+        ########## System Reviews Start ########## 
+        Route::get('system-reviews/', [SystemReviewController::class, 'index']);
+        Route::get('system-reviews/{id}', [SystemReviewController::class, 'show']);
+        Route::post('system-reviews/', [SystemReviewController::class, 'create']);
+        Route::post('system-reviews/{id}', [SystemReviewController::class, 'update']);
+        Route::delete('system-reviews/{id}', [SystemReviewController::class, 'destroy']);
+        ########## System Reviews End ##########
+    });
 
 
 Route::prefix('auth')
@@ -44,6 +58,7 @@ Route::middleware([ClientMiddleware::class, 'auth:sanctum'])
     ->group(function () {
         Route::post('/setup-profile', [ClientController::class, 'setupProfile']);
         Route::get('/me/', [ClientController::class, 'getData']);
+        Route::post('/me/', [ClientController::class, 'updateProfile']);
 
 
 
@@ -65,6 +80,22 @@ Route::middleware([ClientMiddleware::class, 'auth:sanctum'])
         ########## Proposals Start ########## 
         Route::post('/proposals/{id}/reject', [ProposalController::class, 'rejectProposal']);
         ########## Proposals End ########## 
+
+
+        Route::get('vendor-reviews/', [VendorReviewController::class, 'index']);
+        Route::get('vendor-reviews/{id}', [VendorReviewController::class, 'show']);
+        Route::post('vendor-reviews/', [VendorReviewController::class, 'create']);
+        Route::post('vendor-reviews/{id}', [VendorReviewController::class, 'update']);
+        Route::delete('vendor-reviews/{id}', [VendorReviewController::class, 'destroy']);
+
+
+        ########## Vendor Reviews Start ########## 
+        Route::get('vendor-reviews/', [VendorReviewController::class, 'index']);
+        Route::get('vendor-reviews/{id}', [VendorReviewController::class, 'show']);
+        Route::post('vendor-reviews/', [VendorReviewController::class, 'create']);
+        Route::post('vendor-reviews/{id}', [VendorReviewController::class, 'update']);
+        Route::delete('vendor-reviews/{id}', [VendorReviewController::class, 'destroy']);
+        ########## Vendor Reviews End ########## 
     });
 
 
@@ -74,6 +105,7 @@ Route::middleware([VendorMiddleware::class, 'auth:sanctum'])
 
         Route::post('/setup-profile', [VendorController::class, 'setupProfile']);
         Route::get('/me/', [VendorController::class, 'getData']);
+        Route::post('/me/', [VendorController::class, 'updateProfile']);
 
         Route::get('/service-requests/{id}', [ServiceRequestController::class, 'show']);
         Route::get('/service-requests', [ServiceRequestController::class, 'index']);
@@ -158,4 +190,20 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
         Route::post('orders/{id}', [OrderController::class, 'update']);
         Route::delete('orders/', [OrderController::class, 'destroy']);
         ########## Orders End ########## 
+
+
+        ########## Vendor Reviews Start ########## 
+        Route::get('vendor-reviews/', [VendorReviewController::class, 'index']);
+        Route::get('vendor-reviews/{id}', [VendorReviewController::class, 'show']);
+        Route::post('vendor-reviews/{id}', [VendorReviewController::class, 'update']);
+        Route::delete('vendor-reviews/{id}', [VendorReviewController::class, 'destroy']);
+        ########## Vendor Reviews End ########## 
+
+
     });
+
+
+
+
+Route::post('/create-payment-intent', [StripeController::class, 'createPaymentIntent']);
+Route::post('/confirm-payment', [StripeController::class, 'confirmPayment']);

@@ -34,7 +34,7 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $relationships = ['serviceRequest', 'workLocation', 'images', 'vendor.user', 'proposal'];
+        $relationships = ['serviceRequest.client.user', 'workLocation', 'images', 'vendor.user', 'proposal'];
 
         $order = $this->orderService->getOrderById($id, $relationships);
 

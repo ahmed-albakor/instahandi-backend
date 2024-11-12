@@ -12,4 +12,15 @@ class SystemReview extends Model
     protected $dates = ['deleted_at'];
 
     protected $hidden = ['deleted_at'];
+
+    protected $fillable = [
+        'user_id',
+        'rating',
+        'review',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

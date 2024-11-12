@@ -6,74 +6,165 @@ use App\Models\Vendor;
 use App\Models\Location;
 use App\Models\Image;
 use App\Models\User;
+use App\Models\VendorService as ModelsVendorService;
 use App\Services\Helper\ImageService;
 use Illuminate\Support\Facades\Auth;
 
 class VendorService
 {
-    public function setupVendorProfile($validatedData, $user)
+    public function setupVendorProfile(array $validatedData, User $user)
     {
-        $vendor = Vendor::create([
-            'user_id' => $user->id,
-            'code' => $user->code,
-            'account_type' => $validatedData['account_type'],
-            'years_experience' => $validatedData['years_experience'],
-            'longitude' => $validatedData['longitude'] ?? null,
-            'latitude' => $validatedData['latitude'] ?? null,
-            'has_crew' => $validatedData['has_crew'] ?? false,
-            'crew_members' => $validatedData['crew_members'] ?? null,
-        ]);
+        $vendor = $this->createVendor($validatedData, $user);
 
-        $vendor->update([
-            'code' => 'VND' . sprintf('%03d', $vendor->id),
-        ]);
+        $this->updateOrCreateLocation($validatedData, $user);
 
-        Location::updateOrCreate(
-            ['code' => $user->code],
-            [
-                'street_address' => $validatedData['street_address'],
-                'exstra_address' => $validatedData['exstra_address'] ?? null,
-                'country' => $validatedData['country'],
-                'city' => $validatedData['city'],
-                'state' => $validatedData['state'],
-                'zip_code' => $validatedData['zip_code'],
-            ]
-        );
+        $this->handleOptionalFields($validatedData, $user);
 
-        if (isset($validatedData['profile_photo'])) {
-            $profilePhotoPath = ImageService::storeImage($validatedData['profile_photo'], 'profile_photos');
-            $user->update(['profile_photo' => $profilePhotoPath]);
+        $user->update($this->extractUserFields($validatedData, $user) + ['profile_setup' => true]);
+
+        if (isset($validatedData['service_ids'])) {
+            $this->updateVendorServices($validatedData['service_ids'], $vendor);
         }
 
-        if (isset($validatedData['additional_images'])) {
-            foreach ($validatedData['additional_images'] as $image) {
-                $imagePath = ImageService::storeImage($image, 'vendor_images');
-                Image::create([
-                    'code' => $user->code,
-                    'path' => $imagePath,
-                ]);
-            }
-        }
+        return $user;
+    }
 
-        $user->update([
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'phone' => $validatedData['phone'],
-            'description' => $validatedData['description'] ?? null,
-            'profile_setup' => true,
-        ]);
+    public function profileData(): User
+    {
+        $user_id = Auth::id();
+        $user = User::find($user_id);
+
+        $user->load(['vendor.services', 'images', 'location']);
 
         return $user;
     }
 
 
-    public function profileData()
+
+    public function updateProfile(array $validatedData, User $user)
     {
-        $user_id = Auth::id();
-        $user = User::find($user_id);
+        if (isset($user->vendor)) {
+            $this->updateVendorProfile($validatedData, $user->vendor);
+        }
 
-        $user->load(['vendor', 'images', 'location']);
+        $this->updateOrCreateLocation($validatedData, $user);
 
-        return $user;
+        $this->handleOptionalFields($validatedData, $user);
+
+        $user->update($this->extractUserFields($validatedData, $user));
+
+        if (isset($validatedData['service_ids'])) {
+            $this->updateVendorServices($validatedData['service_ids'], $user->vendor);
+        }
+
+        return $user->load(['vendor.services']);
+    }
+
+    // Create or Update Vendor Profile
+    private function createVendor(array $data, User $user): Vendor
+    {
+        $vendor = Vendor::create([
+            'user_id' => $user->id,
+            'code' => $user->code,
+            'account_type' => $data['account_type'],
+            'years_experience' => $data['years_experience'],
+            'longitude' => $data['longitude'] ?? null,
+            'latitude' => $data['latitude'] ?? null,
+            'has_crew' => $data['has_crew'] ?? false,
+            'crew_members' => $data['crew_members'] ?? null,
+        ]);
+
+        $vendor->update(['code' => 'VND' . sprintf('%03d', $vendor->id)]);
+
+        return $vendor;
+    }
+
+    private function updateVendorProfile(array $data, Vendor $vendor)
+    {
+        $vendor->update([
+            'account_type' => $data['account_type'] ?? $vendor->account_type,
+            'years_experience' => $data['years_experience'] ?? $vendor->years_experience,
+            'longitude' => $data['longitude'] ?? $vendor->longitude,
+            'latitude' => $data['latitude'] ?? $vendor->latitude,
+            'has_crew' => $data['has_crew'] ?? $vendor->has_crew,
+            'crew_members' => $data['crew_members'] ?? $vendor->crew_members,
+        ]);
+    }
+
+    // Create or Update Location
+    private function updateOrCreateLocation(array $data, User $user)
+    {
+        Location::updateOrCreate(
+            ['code' => $user->code],
+            [
+                'street_address' => $data['street_address'] ?? $user->location->street_address,
+                'exstra_address' => $data['exstra_address'] ?? $user->location->exstra_address,
+                'country' => $data['country'] ?? $user->location->country,
+                'city' => $data['city'] ?? $user->location->city,
+                'state' => $data['state'] ?? $user->location->state,
+                'zip_code' => $data['zip_code'] ?? $user->location->zip_code,
+            ]
+        );
+    }
+
+    // Handle Optional Fields
+    private function handleOptionalFields(array $data, User $user)
+    {
+        $optionalFields = [
+            'profile_photo' => fn($value) => $this->updateProfilePhoto($value, $user),
+            'additional_images' => fn($value) => $this->storeAdditionalImages($value, $user),
+        ];
+
+        foreach ($optionalFields as $key => $action) {
+            if (isset($data[$key])) {
+                $action($data[$key]);
+            }
+        }
+    }
+
+    private function updateProfilePhoto($photo, User $user)
+    {
+        $path = ImageService::storeImage($photo, 'profile_photos');
+        $user->update(['profile_photo' => $path]);
+    }
+
+    private function storeAdditionalImages(array $images, User $user)
+    {
+        foreach ($images as $image) {
+            $path = ImageService::storeImage($image, 'vendor_images');
+            Image::create([
+                'code' => $user->code,
+                'path' => $path,
+            ]);
+        }
+    }
+
+    // Extract User Fields for Update
+    private function extractUserFields(array $data, User $user): array
+    {
+        return [
+            'first_name' => $data['first_name'] ?? $user->first_name,
+            'last_name' => $data['last_name'] ?? $user->last_name,
+            'phone' => $data['phone'] ?? $user->phone,
+            'description' => $data['description'] ?? $user->description,
+        ];
+    }
+
+    // Update Vendor Services
+    private function updateVendorServices(array $serviceIds, Vendor $vendor)
+    {
+        $existingServices = ModelsVendorService::where('vendor_id', $vendor->id)
+            ->whereIn('service_id', $serviceIds)
+            ->pluck('service_id')
+            ->toArray();
+
+        $newServices = array_diff($serviceIds, $existingServices);
+
+        foreach ($newServices as $serviceId) {
+            ModelsVendorService::create([
+                'vendor_id' => $vendor->id,
+                'service_id' => $serviceId,
+            ]);
+        }
     }
 }

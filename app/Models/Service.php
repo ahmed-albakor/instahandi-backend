@@ -33,4 +33,10 @@ class Service extends Model
     {
         return $this->hasMany(Image::class, 'code', 'code');
     }
+
+
+    public function vendorServices()
+    {
+        return $this->hasMany(VendorService::class);
+    }
 }

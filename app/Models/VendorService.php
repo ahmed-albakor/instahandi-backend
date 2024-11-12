@@ -7,9 +7,20 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VendorService extends Model
 {
-    use SoftDeletes;
+    public $timestamps = false;
 
-    protected $dates = ['deleted_at'];
+    protected $fillable = [
+        'vendor_id',
+        'service_id',
+    ];
 
-    protected $hidden = ['deleted_at'];
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
 }

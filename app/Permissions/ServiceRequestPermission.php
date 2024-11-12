@@ -87,7 +87,8 @@ class ServiceRequestPermission
                 break;
         }
 
-        $permission = $proposal->service_request_id == $serviceRequest->id;
+        if ($permission)
+            $permission = $proposal->service_request_id == $serviceRequest->id;
 
 
         if (!$permission) {

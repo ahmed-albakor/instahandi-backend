@@ -16,7 +16,7 @@ class OrderService
         $user = Auth::user();
 
         $query = Order::query()->with([
-            'serviceRequest',
+            'serviceRequest.client.user',
             'vendor.user',
             'proposal'
         ]);

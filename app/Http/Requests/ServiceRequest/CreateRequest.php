@@ -3,6 +3,7 @@
 namespace App\Http\Requests\ServiceRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class CreateRequest extends FormRequest
 {
@@ -30,7 +31,7 @@ class CreateRequest extends FormRequest
             'start_date' => 'required|date',
             'completion_date' => 'required|date',
             'service_id' => 'required|exists:services,id,deleted_at,NULL',
-            'client_id' => 'required|exists:clients,id,deleted_at,NULL',
+            'client_id' => Auth::user()->role != 'admin' ? "" : 'required|exists:clients,id,deleted_at,NULL',
             // Location Validator
             'street_address' => 'required|string',
             'exstra_address' => 'nullable|string',

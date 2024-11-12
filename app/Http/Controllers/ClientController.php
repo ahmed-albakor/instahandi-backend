@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Client\SetupProfileRequest;
+use App\Http\Requests\Client\UpdateProfileRequest;
 use App\Services\System\ClientService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,5 +48,19 @@ class ClientController extends Controller
             'success' => true,
             'data' => $user
         ], 200);
+    }
+
+
+    public function updateProfile(UpdateProfileRequest $request)
+    {
+        $validatedData = $request->validated();
+
+        $user = Auth::user();
+        $updatedUser = $this->clientService->updateProfile($validatedData, $user);
+
+        return response()->json([
+            'message' => 'Profile updated successfully!',
+            'user' => $updatedUser
+        ]);
     }
 }

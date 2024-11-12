@@ -2,43 +2,14 @@
 
 namespace App\Permissions;
 
-use App\Models\Proposal;
+use App\Models\Order;
+use App\Models\ServiceRequest;
+use App\Models\SystemReview;
 use Illuminate\Support\Facades\Auth;
 
-class ProposalPermission
+class SystemReviewPermission
 {
-
-    public static function update(Proposal $proposal)
-    {
-
-        $user = Auth::user();
-
-        switch ($user->role) {
-            case 'admin':
-                $permission = true;
-                break;
-            case 'vendor':
-                $permission = $proposal->vendor_id == $user->vendor->id;
-                break;
-            case 'client':
-                $permission = false;
-                break;
-            default:
-                $permission = false;
-                break;
-        }
-
-
-        if (!$permission) {
-            abort(
-                response()->json([
-                    'success' => false,
-                    'message' => 'Permissions error.',
-                ], 403)
-            );
-        }
-    }
-    public static function destory(Proposal $proposal)
+    public static function view(SystemReview $review)
     {
         $user = Auth::user();
 
@@ -46,14 +17,8 @@ class ProposalPermission
             case 'admin':
                 $permission = true;
                 break;
-            case 'vendor':
-                $permission = $proposal->vendor_id == $user->vendor->id;
-                break;
-            case 'client':
-                $permission = false;
-                break;
             default:
-                $permission = false;
+                $permission = $review->user_id == $user->id;
                 break;
         }
 
@@ -67,7 +32,65 @@ class ProposalPermission
         }
     }
 
-    public static function reject(Proposal $proposal)
+    public static function create()
+    {
+        $user = Auth::user();
+
+
+        switch ($user->role) {
+            case 'admin':
+                $permission = true;
+                break;
+            case 'vendor':
+                $order = Order::where('vendor_id', $user->vendor->id)->first();
+                $permission = $order;
+                $message = ", You must get the first job to be able to review.";
+                break;
+                case 'client':
+                    $serviceRequest = ServiceRequest::where('client_id', $user->client->id)->where('status', 'completed')->first();
+                    $permission = $serviceRequest;
+                    $message = ", You must request and complete at least one service to be eligible for review";
+                break;
+            default:
+                $permission = false;
+                break;
+        }
+
+
+        if (!$permission) {
+            abort(
+                response()->json([
+                    'success' => false,
+                    'message' => "Permissions error$message.",
+                ], 403)
+            );
+        }
+    }
+
+    public static function update(SystemReview $review)
+    {
+        $user = Auth::user();
+
+        switch ($user->role) {
+            case 'admin':
+                $permission = $review->user_id == $user->id;
+                break;
+            default:
+                $permission = $review->user_id == $user->id;
+                break;
+        }
+
+        if (!$permission) {
+            abort(
+                response()->json([
+                    'success' => false,
+                    'message' => 'Permissions error.',
+                ], 403)
+            );
+        }
+    }
+
+    public static function delete(SystemReview $review)
     {
         $user = Auth::user();
 
@@ -75,19 +98,10 @@ class ProposalPermission
             case 'admin':
                 $permission = true;
                 break;
-            case 'vendor':
-                $permission = false;
-                break;
-            case 'client':
-                $permission = $proposal->serviceRequest->client->user->id == $user->id;
-                break;
             default:
-                $permission = false;
+                $permission = $review->user_id == $user->id;
                 break;
         }
-
-        if ($permission)
-            $permission = $proposal->status == 'pending';
 
         if (!$permission) {
             abort(

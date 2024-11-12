@@ -70,4 +70,44 @@ class ClientService
 
         return $user;
     }
+
+
+    public function updateProfile($validatedData, $user)
+    {
+        Location::updateOrCreate(
+            ['code' => $user->code],
+            [
+                'street_address' => $validatedData['street_address'] ?? $user->location->street_address,
+                'exstra_address' => $validatedData['exstra_address'] ?? $user->location->exstra_address,
+                'country' => $validatedData['country'] ?? $user->location->country,
+                'city' => $validatedData['city'] ?? $user->location->city,
+                'state' => $validatedData['state'] ?? $user->location->state,
+                'zip_code' => $validatedData['zip_code'] ?? $user->location->zip_code,
+            ]
+        );
+
+        if (isset($validatedData['profile_photo'])) {
+            $profilePhotoPath = ImageService::storeImage($validatedData['profile_photo'], 'profile_photos');
+            $user->update(['profile_photo' => $profilePhotoPath]);
+        }
+
+        if (isset($validatedData['additional_images'])) {
+            foreach ($validatedData['additional_images'] as $image) {
+                $imagePath = ImageService::storeImage($image, 'client_images');
+                Image::create([
+                    'code' => $user->code,
+                    'path' => $imagePath,
+                ]);
+            }
+        }
+
+        $user->update([
+            'first_name' => $validatedData['first_name'] ?? $user->first_name,
+            'last_name' => $validatedData['last_name'] ?? $user->last_name,
+            'phone' => $validatedData['phone'] ?? $user->phone,
+            'description' => $validatedData['description'] ?? $user->description,
+        ]);
+
+        return $user;
+    }
 }
