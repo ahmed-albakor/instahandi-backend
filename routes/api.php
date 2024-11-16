@@ -2,13 +2,13 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientPaymentController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceRequestController;
-use App\Http\Controllers\StripeController;
 use App\Http\Controllers\SystemReviewController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\VendorController;
@@ -27,6 +27,10 @@ Route::get('/user', function (Request $request) {
 
 
 Route::get('/home-data', [HomeController::class, 'getData']);
+Route::get('/services', [ServiceController::class, 'index']);
+Route::get('/vendors', [VendorController::class, 'index']);
+Route::get('/vendors/{id}', [VendorController::class, 'show']);
+
 
 Route::middleware(['auth:sanctum'])
     ->group(function () {
@@ -96,6 +100,10 @@ Route::middleware([ClientMiddleware::class, 'auth:sanctum'])
         Route::post('vendor-reviews/{id}', [VendorReviewController::class, 'update']);
         Route::delete('vendor-reviews/{id}', [VendorReviewController::class, 'destroy']);
         ########## Vendor Reviews End ########## 
+
+
+        Route::post('payments/', [ClientPaymentController::class, 'createPaymentIntent']);
+        Route::post('payments/confirm', [ClientPaymentController::class, 'confirmPayment']);
     });
 
 
@@ -201,9 +209,3 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
 
 
     });
-
-
-
-
-Route::post('/create-payment-intent', [StripeController::class, 'createPaymentIntent']);
-Route::post('/confirm-payment', [StripeController::class, 'confirmPayment']);

@@ -2,35 +2,76 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClientPayment;
+use App\Models\User;
+use App\Services\System\ClientPaymentService;
 use Illuminate\Http\Request;
 use Stripe\StripeClient;
 
 class StripeController extends Controller
 {
     public $stripe;
+    public $clientPaymentService;
 
-    public function __construct()
+    public function __construct(ClientPaymentService $clientPaymentService)
     {
         $this->stripe = new StripeClient(
-            config('stripe.api_key.secret') // استخدم إعدادات المفتاح السري من ملف config/stripe.php
+            config('stripe.api_key.secret')
         );
+
+        $this->clientPaymentService = $clientPaymentService;
     }
 
     public function createPaymentIntent(Request $request)
     {
-        $amount = $request->input('amount');
-        $currency = $request->input('currency', 'usd');
+        $amount = 500 * 100;
+        $service_requests_id = 1;
 
         try {
-            // إنشاء PaymentIntent باستخدام كائن StripeClient
+
+            $user = User::find(3);
+            $customerEmail = $user->email;
+            $customerName = $user->first_name . ' ' . $user->last_name;
+            $customerPhone = $user->phone;
+
+
+
+            $existingCustomer = $this->stripe->customers->all([
+                'email' => $customerEmail,
+                'limit' => 1,
+            ]);
+
+            if (!empty($existingCustomer->data)) {
+                $customerId = $existingCustomer->data[0]->id;
+            } else {
+                $newCustomer = $this->stripe->customers->create([
+                    'email' => $customerEmail,
+                    'name' => $customerName,
+                    'phone' => $customerPhone,
+                ]);
+                $customerId = $newCustomer->id;
+            }
+
             $paymentIntent = $this->stripe->paymentIntents->create([
                 'amount' => $amount,
-                'currency' => $currency,
+                'currency' => 'usd',
+                'customer' => $customerId,
                 'payment_method_types' => ['card'],
             ]);
 
+            $payment = $this->clientPaymentService->createPayment([
+                'client_id' => $user->client->id,
+                'service_request_id' => $service_requests_id,
+                'amount' => $amount,
+                'method' => 'stripe',
+                'status' => 'pending',
+                'description' => '',
+                'payment_data' => json_encode($paymentIntent),
+            ]);
+
             return response()->json([
-                'clientSecret' => $paymentIntent->client_secret,
+                'payment' => $payment,
+                'client_secret' => $paymentIntent->client_secret,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -39,28 +80,33 @@ class StripeController extends Controller
         }
     }
 
+
     public function confirmPayment(Request $request)
     {
-        $paymentIntentId = $request->input('paymentIntentId');
+        $paymentId = $request->input('payment_id');
 
         try {
-            // استرجاع وتأكيد الدفع باستخدام StripeClient
-            $paymentIntent = $this->stripe->paymentIntents->retrieve($paymentIntentId);
-            $paymentIntent = $this->stripe->paymentIntents->confirm($paymentIntentId);
+            $payment = ClientPayment::find($paymentId);
+            $payment_data = json_decode($payment->payment_data);
+
+            $paymentIntent = $this->stripe->paymentIntents->retrieve($payment_data->id);
 
             if ($paymentIntent->status === 'succeeded') {
-                return response()->json(['status' => 'success', 'message' => 'Payment completed successfully.']);
-            } else {
-                return response()->json(['status' => 'error', 'message' => 'Payment not successful.']);
+                $this->clientPaymentService->updatePayment($payment, [
+                    'status' => 'confirm',
+                    'payment_data' => json_encode($paymentIntent),
+                ]);
+
+                return response()->json(['status' => true, 'message' => 'Payment completed successfully.']);
             }
+
+            return response()->json(['status' => false, 'message' => 'Payment not successful.']);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
-
-
     public function pay()
     {
         $session = $this->stripe->checkout->sessions->create(

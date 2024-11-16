@@ -58,6 +58,11 @@ class Vendor extends Model
     }
 
 
+    public function getAverageRatingAttribute()
+    {
+        return number_format($this->reviews->avg('rating'), 1) ?? 0.0;
+    }
+
     public function services()
     {
         return $this->belongsToMany(Service::class, 'vendor_services', 'vendor_id', 'service_id');

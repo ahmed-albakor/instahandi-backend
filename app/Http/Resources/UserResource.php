@@ -34,6 +34,7 @@ class UserResource extends JsonResource
             'description' => $this->description,
             'profile_photo' => $this->profile_photo,
             'location' => new LocationResource($this->whenLoaded('location')),
+            'images' => ImageResource::collection($this->whenLoaded('images')),
         ];
     }
 }

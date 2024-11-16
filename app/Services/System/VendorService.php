@@ -7,6 +7,7 @@ use App\Models\Location;
 use App\Models\Image;
 use App\Models\User;
 use App\Models\VendorService as ModelsVendorService;
+use App\Services\Helper\FilterService;
 use App\Services\Helper\ImageService;
 use Illuminate\Support\Facades\Auth;
 
@@ -166,5 +167,48 @@ class VendorService
                 'service_id' => $serviceId,
             ]);
         }
+    }
+
+
+
+
+    public function index()
+    {
+        $query = Vendor::query()->with(['user']);
+
+        $searchFields = ['code'];
+        $numericFields = ['years_experience',];
+        $dateFields = ['created_at'];
+        $exactMatchFields = ['user_id', 'account_type', 'has_crew'];
+        $inFields = [];
+
+        $testimonials =  FilterService::applyFilters(
+            $query,
+            request()->all(),
+            $searchFields,
+            $numericFields,
+            $dateFields,
+            $exactMatchFields,
+            $inFields
+        );
+
+        return $testimonials;
+    }
+
+
+    public function getVendorById($id)
+    {
+
+        $vendor = Vendor::find($id);
+
+        if (!$vendor) {
+            abort(
+                response()->json([
+                    'success' => false,
+                    'message' => 'Vendor not found.',
+                ], 404)
+            );
+        }
+        return $vendor;
     }
 }

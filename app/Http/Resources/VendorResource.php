@@ -17,7 +17,9 @@ class VendorResource extends JsonResource
             'latitude' => $this->latitude,
             'has_crew' => $this->has_crew,
             'crew_members' => $this->crew_members,
+            'average_rating' => $this->getAverageRatingAttribute(),
             'user' => new UserResource($this->whenLoaded('user')),
+            'services' =>  ServiceResource::collection($this->whenLoaded('services')),
         ];
     }
 }

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Vendor\SetupProfileRequest;
 use App\Http\Requests\Vendor\UpdateProfileRequest;
+use App\Http\Resources\VendorResource;
+use App\Models\User;
+use App\Services\Helper\ResponseService;
 use App\Services\System\VendorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -62,6 +65,32 @@ class VendorController extends Controller
         return response()->json([
             'message' => 'Vendor profile updated successfully!',
             'user' => $updatedUser,
+        ]);
+    }
+
+
+    public function index()
+    {
+        $testimonials = $this->vendorService->index();
+
+        return response()->json([
+            'success' => true,
+            'data' => VendorResource::collection($testimonials->items()),
+            'meta' => ResponseService::meta($testimonials),
+        ]);
+    }
+
+
+    public function show($id)
+    {
+
+        $vendor = $this->vendorService->getVendorById($id);
+
+        $vendor->load(['user.images', 'user.location', 'services']);
+
+        return response()->json([
+            'success' => true,
+            'user' => new VendorResource($vendor),
         ]);
     }
 }

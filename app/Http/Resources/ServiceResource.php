@@ -15,8 +15,15 @@ class ServiceResource extends JsonResource
      */
     public function toArray(Request $request)
     {
-        $user = Auth::user();
 
-        return $this->id;
+        return [
+            'id' => $this->id,
+            'code' => $this->code ?? null,
+            'name' => $this->name ?? null,
+            'description' => $this->description ?? null,
+            'main_image' => $this->main_image ?? null,
+            'created_at' => $this->created_at ? $this->created_at->toDateTimeString() : null,
+            'updated_at' => $this->updated_at ? $this->updated_at->toDateTimeString() : null,
+        ];
     }
 }

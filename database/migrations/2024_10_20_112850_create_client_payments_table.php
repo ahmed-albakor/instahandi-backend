@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('service_request_id')->constrained('service_requests')->onDelete('cascade');
             $table->decimal('amount', 8, 2)->default(0);
             $table->enum('method', ["stripe"]);
-            $table->enum('status', ["confirm", "return", "cancel"]);
+            $table->enum('status', ['pending', "confirm", "return", "cancel"]);
             $table->text('description')->nullable();
             $table->json('payment_data');
             $table->timestamps();
