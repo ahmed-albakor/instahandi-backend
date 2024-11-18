@@ -7,7 +7,6 @@ use App\Models\Faq;
 use App\Models\Service;
 use App\Models\Testimonial;
 use App\Models\Vendor;
-use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -16,9 +15,7 @@ class HomeController extends Controller
 
         $services = Service::limit(8)->get();
 
-        // $services->load('images');
-
-        $vendors = Vendor::with(['user.location', 'services', 'reviews'])
+        $vendors = Vendor::with(['user.location', 'vendorServices.service', 'reviews', 'services'])
             ->whereHas('user', function ($query) {
                 $query->where('approve', 1)
                     ->where('profile_setup', 1);

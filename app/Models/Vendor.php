@@ -67,4 +67,6 @@ class Vendor extends Model
     {
         return $this->belongsToMany(Service::class, 'vendor_services', 'vendor_id', 'service_id');
     }
+
+    
 }

@@ -20,6 +20,7 @@ class VendorResource extends JsonResource
             'average_rating' => $this->getAverageRatingAttribute(),
             'user' => new UserResource($this->whenLoaded('user')),
             'services' =>  ServiceResource::collection($this->whenLoaded('services')),
+            'vendorServices'=> VendorServiceResource::collection($this->whenLoaded('vendorServices')),
         ];
     }
 }
