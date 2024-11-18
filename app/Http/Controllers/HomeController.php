@@ -18,7 +18,7 @@ class HomeController extends Controller
 
         // $services->load('images');
 
-        $vendors = Vendor::with(['user', 'reviews'])
+        $vendors = Vendor::with(['user.location', 'services', 'reviews'])
             ->whereHas('user', function ($query) {
                 $query->where('approve', 1)
                     ->where('profile_setup', 1);
