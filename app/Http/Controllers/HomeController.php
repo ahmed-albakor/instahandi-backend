@@ -18,7 +18,13 @@ class HomeController extends Controller
 
         // $services->load('images');
 
-        $vendors = Vendor::with(['user', 'reviews'])->limit(4)->get();
+        $vendors = Vendor::with(['user', 'reviews'])
+            ->whereHas('user', function ($query) {
+                $query->where('approve', 1)
+                    ->where('profile_setup', 1);
+            })
+            ->limit(6)
+            ->get();
 
 
         $testimonials = Testimonial::get();

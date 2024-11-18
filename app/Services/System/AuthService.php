@@ -64,8 +64,10 @@ class AuthService
     public function forgetPassword($requestData)
     {
         $email = $requestData['email'];
+        $role = $requestData['role'];
 
-        $user = User::where('email', $email)->first();
+        $user = User::where('email', $email)->where('role', $role)->first();
+
 
         if (!$user) {
             return false;
