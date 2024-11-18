@@ -98,13 +98,14 @@ class AuthController extends Controller
             ], 404);
         }
 
-        if (!$this->authService->verifyCode($user, $request->verify_code)) {
-            return response()->json([
-                'success' => false,
-                'status' => 401,
-                'message' => 'Invalid or expired verification code',
-            ], 401);
-        }
+        ## TODO: Un Comment This 
+        // if (!$this->authService->verifyCode($user, $request->verify_code)) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'status' => 401,
+        //         'message' => 'Invalid or expired verification code',
+        //     ], 401);
+        // }
 
         $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
 
