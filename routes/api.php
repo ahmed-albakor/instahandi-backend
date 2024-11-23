@@ -25,11 +25,13 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-
-Route::get('/home-data', [HomeController::class, 'getData']);
-Route::get('/services', [ServiceController::class, 'index']);
-Route::get('/vendors', [VendorController::class, 'index']);
-Route::get('/vendors/{id}', [VendorController::class, 'show']);
+Route::prefix('public')
+    ->group(function () {
+        Route::get('/home-data', [HomeController::class, 'getData']);
+        Route::get('/services', [ServiceController::class, 'index']);
+        Route::get('/vendors', [VendorController::class, 'index']);
+        Route::get('/vendors/{id}', [VendorController::class, 'show']);
+    });
 
 
 Route::middleware(['auth:sanctum'])

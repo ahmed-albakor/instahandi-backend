@@ -36,7 +36,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
+        $token = $user->createToken($user->first_name . '-AuthToken')->plainTextToken;
 
         return response()->json([
             'success' => true,
@@ -106,6 +106,11 @@ class AuthController extends Controller
         //         'message' => 'Invalid or expired verification code',
         //     ], 401);
         // }
+
+        if ($user->approve == 0)
+            $user->update([
+                'approve' => 1
+            ]);
 
         $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
 

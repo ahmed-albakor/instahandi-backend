@@ -17,7 +17,6 @@ class ServiceRequestService
         $query = ServiceRequest::query()->with(['location', 'images', 'client.user']);
 
 
-
         $searchFields = ['code', 'title', 'description'];
         $numericFields = ['price'];
         $dateFields = ['created_at'];
