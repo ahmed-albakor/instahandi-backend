@@ -174,7 +174,7 @@ class VendorService
 
     public function index()
     {
-        $query = Vendor::query()->with(['user']);
+        $query = Vendor::query()->with(['user.location', 'vendorServices.service', 'reviews', 'services']);
 
         $searchFields = ['code'];
         $numericFields = ['years_experience',];
