@@ -13,7 +13,7 @@ class VendorReview extends Model
     protected $dates = ['deleted_at'];
 
     protected $hidden = ['deleted_at'];
-    
+
     protected $fillable = [
         'vendor_id',
         'client_id',
@@ -21,4 +21,9 @@ class VendorReview extends Model
         'rating',
         'review',
     ];
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
 }
