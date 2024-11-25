@@ -15,6 +15,8 @@ class VendorService
 {
     public function setupVendorProfile(array $validatedData, User $user)
     {
+        if ($user->profile_setup == 0) return $user;
+        
         $vendor = $this->createVendor($validatedData, $user);
 
         $this->updateOrCreateLocation($validatedData, $user);
@@ -46,16 +48,17 @@ class VendorService
     {
         if (isset($user->vendor)) {
             $this->updateVendorProfile($validatedData, $user->vendor);
-        }
 
-        $this->updateOrCreateLocation($validatedData, $user);
 
-        $this->handleOptionalFields($validatedData, $user);
+            $this->updateOrCreateLocation($validatedData, $user);
 
-        $user->update($this->extractUserFields($validatedData, $user));
+            $this->handleOptionalFields($validatedData, $user);
 
-        if (isset($validatedData['service_ids'])) {
-            $this->updateVendorServices($validatedData['service_ids'], $user->vendor);
+            $user->update($this->extractUserFields($validatedData, $user));
+
+            if (isset($validatedData['service_ids'])) {
+                $this->updateVendorServices($validatedData['service_ids'], $user->vendor);
+            }
         }
 
         return $user->load(['vendor.services']);
