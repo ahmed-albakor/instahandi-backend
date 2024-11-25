@@ -15,7 +15,7 @@ class HomeController extends Controller
 
         $services = Service::limit(8)->get();
 
-        $vendors = Vendor::with(['user.location', 'vendorServices.service', 'reviews', 'services'])
+        $vendors = Vendor::with(['user.location', 'services'])
             ->whereHas('user', function ($query) {
                 $query->where('approve', 1)
                     ->where('profile_setup', 1);
