@@ -16,7 +16,7 @@ class VendorService
     public function setupVendorProfile(array $validatedData, User $user)
     {
         if ($user->profile_setup == 0) return $user;
-        
+
         $vendor = $this->createVendor($validatedData, $user);
 
         $this->updateOrCreateLocation($validatedData, $user);
@@ -177,7 +177,7 @@ class VendorService
 
     public function index()
     {
-        $query = Vendor::query()->with(['user.location', 'vendorServices.service', 'reviews', 'services']);
+        $query = Vendor::query()->with(['user.location', 'services']);
 
         $searchFields = ['code'];
         $numericFields = ['years_experience',];

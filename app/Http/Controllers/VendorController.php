@@ -86,7 +86,7 @@ class VendorController extends Controller
 
         $vendor = $this->vendorService->getVendorById($id);
 
-        $vendor->load(['user.images', 'user.location', 'services']);
+        $vendor->load(['user.images', 'user.location', 'services', 'reviews']);
 
         return response()->json([
             'success' => true,

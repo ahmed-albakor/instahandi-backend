@@ -21,6 +21,7 @@ class VendorResource extends JsonResource
             'user' => new UserResource($this->whenLoaded('user')),
             'services' =>  ServiceResource::collection($this->whenLoaded('services')),
             'vendorServices'=> VendorServiceResource::collection($this->whenLoaded('vendorServices')),
+            'reviews'=> VendorReviewResource::collection($this->whenLoaded('reviews')),
         ];
     }
 }
