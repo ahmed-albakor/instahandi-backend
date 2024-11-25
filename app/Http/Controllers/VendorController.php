@@ -90,7 +90,7 @@ class VendorController extends Controller
 
         return response()->json([
             'success' => true,
-            'user' => new VendorResource($vendor),
+            'data' => new VendorResource($vendor),
         ]);
     }
 }
