@@ -12,6 +12,7 @@ use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\SystemReviewController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\VendorController;
+use App\Http\Controllers\VendorPaymentController;
 use App\Http\Controllers\VendorReviewController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\ClientMiddleware;
@@ -63,8 +64,8 @@ Route::middleware([ClientMiddleware::class, 'auth:sanctum'])
     ->prefix('clients')
     ->group(function () {
         Route::post('/setup-profile', [ClientController::class, 'setupProfile']);
-        Route::get('/me/', [ClientController::class, 'getData']);
-        Route::post('/me/', [ClientController::class, 'updateProfile']);
+        Route::get('me/', [ClientController::class, 'getData']);
+        Route::post('me/', [ClientController::class, 'updateProfile']);
 
 
 
@@ -104,8 +105,10 @@ Route::middleware([ClientMiddleware::class, 'auth:sanctum'])
         ########## Vendor Reviews End ########## 
 
 
-        Route::post('payments/', [ClientPaymentController::class, 'createPaymentIntent']);
-        Route::post('payments/confirm', [ClientPaymentController::class, 'confirmPayment']);
+        Route::get('payments/', [ClientPaymentController::class, 'index']);
+        Route::get('payments/{id}', [ClientPaymentController::class, 'show']);
+        // Route::post('payments/', [ClientPaymentController::class, 'createPaymentIntent']);
+        // Route::post('payments/confirm', [ClientPaymentController::class, 'confirmPayment']);
     });
 
 
@@ -114,8 +117,8 @@ Route::middleware([VendorMiddleware::class, 'auth:sanctum'])
     ->group(function () {
 
         Route::post('/setup-profile', [VendorController::class, 'setupProfile']);
-        Route::get('/me/', [VendorController::class, 'getData']);
-        Route::post('/me/', [VendorController::class, 'updateProfile']);
+        Route::get('me/', [VendorController::class, 'getData']);
+        Route::post('me/', [VendorController::class, 'updateProfile']);
 
         Route::get('/service-requests/{id}', [ServiceRequestController::class, 'show']);
         Route::get('/service-requests', [ServiceRequestController::class, 'index']);
@@ -136,6 +139,9 @@ Route::middleware([VendorMiddleware::class, 'auth:sanctum'])
         Route::get('orders/{id}', [OrderController::class, 'show']);
         Route::post('orders/{id}/status', [OrderController::class, 'updateStatus']);
         ########## Order End ########## 
+
+        Route::get('payments/', [VendorPaymentController::class, 'index']);
+        Route::get('payments/{id}', [VendorPaymentController::class, 'show']);
     });
 
 

@@ -2,25 +2,25 @@
 
 namespace App\Services\System;
 
-use App\Models\ClientPayment;
+use App\Models\VendorPayment;
 use App\Services\Helper\FilterService;
 use Illuminate\Support\Facades\Auth;
 
-class ClientPaymentService
+class VendorPaymentService
 {
     public function getAllPayments()
     {
-        $query = ClientPayment::query()->with(['client.user', 'serviceRequest']);
+        $query = VendorPayment::query()->with(['vendor.user', 'order']);
 
         $user = Auth::user();
-        if ($user->role == 'client') {
-            $query->where('client_id', $user->client->id);
+        if ($user->role == 'vendor') {
+            $query->where('vendor_id', $user->vendor->id);
         }
 
         $searchFields = ['code', 'description'];
         $numericFields = ['amount'];
         $dateFields = ['created_at'];
-        $exactMatchFields = ['method', 'status', 'client_id', 'service_request_id'];
+        $exactMatchFields = ['method', 'status', 'venodr_id', 'order_id'];
         $inFields = [];
 
         return FilterService::applyFilters(
@@ -36,7 +36,7 @@ class ClientPaymentService
 
     public function getPaymentById($id)
     {
-        $payment = ClientPayment::find($id);
+        $payment = VendorPayment::find($id);
 
         if (!$payment) {
             abort(response()->json([
@@ -51,22 +51,22 @@ class ClientPaymentService
     public function createPayment(array $data)
     {
         $data['code'] = rand(1111, 5555);
-        $clientPayment = ClientPayment::create($data);
+        $VendorPayment = VendorPayment::create($data);
 
-        $clientPayment->update([
-            'code' => 'CLTPY' . sprintf('%03d', $clientPayment->id),
+        $VendorPayment->update([
+            'code' => 'VNDPY' . sprintf('%03d', $VendorPayment->id),
         ]);
 
-        return $clientPayment;
+        return $VendorPayment;
     }
 
-    public function updatePayment(ClientPayment $payment, array $data)
+    public function updatePayment(VendorPayment $payment, array $data)
     {
         $payment->update($data);
         return $payment;
     }
 
-    public function deletePayment(ClientPayment $payment)
+    public function deletePayment(VendorPayment $payment)
     {
         $payment->delete();
     }
