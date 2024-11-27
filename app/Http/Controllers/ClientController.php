@@ -57,6 +57,7 @@ class ClientController extends Controller
 
         $user = Auth::user();
         $updatedUser = $this->clientService->updateProfile($validatedData, $user);
+        
 
         return response()->json([
             'message' => 'Profile updated successfully!',

@@ -113,6 +113,8 @@ class ClientService
             'description' => $validatedData['description'] ?? $user->description,
         ]);
 
+        $user->load(['client', 'images', 'location']);
+
         return $user;
     }
 }

@@ -36,19 +36,26 @@ class ImageService
 
     public static function removeImages($ids)
     {
+        if (!is_array($ids)) {
+            abort([
+                'success' => false,
+                'message' => 'يجب تقديم معرفات الصور كمصفوفة غير فارغة.',
+            ]);
+        }
+
         $existingImages = Image::whereIn('id', $ids)->get();
 
         if (count($ids) !== $existingImages->count()) {
-            return [
+            abort([
                 'success' => false,
                 'message' => 'بعض الصور المطلوب حذفها غير موجودة.',
-            ];
+            ]);
         }
 
         foreach ($existingImages as $image) {
-            if (Storage::exists("public/" . $image->getRawOriginal('path'))) {
-                Storage::delete("public/" . $image->getRawOriginal('path'));
-            }
+            // if (Storage::exists("public/" . $image->getRawOriginal('path'))) {
+            //     Storage::delete("public/" . $image->getRawOriginal('path'));
+            // }
             $image->delete();
         }
     }

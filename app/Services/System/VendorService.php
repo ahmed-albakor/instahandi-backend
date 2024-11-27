@@ -65,7 +65,9 @@ class VendorService
             }
         }
 
-        return $user->load(['vendor.services']);
+        $user->load(['vendor.services', 'images', 'location']);
+
+        return $user;
     }
 
     // Create or Update Vendor Profile
