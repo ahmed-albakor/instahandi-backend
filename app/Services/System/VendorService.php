@@ -59,6 +59,10 @@ class VendorService
             if (isset($validatedData['service_ids'])) {
                 $this->updateVendorServices($validatedData['service_ids'], $user->vendor);
             }
+
+            if (request()->has('images_remove')) {
+                return  ImageService::removeImages(request()->input('images_remove'));
+            }
         }
 
         return $user->load(['vendor.services']);

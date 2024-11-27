@@ -8,6 +8,7 @@ use App\Models\Location;
 use App\Models\User;
 use App\Services\Helper\ImageService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ClientService
 {
@@ -99,6 +100,10 @@ class ClientService
                     'path' => $imagePath,
                 ]);
             }
+        }
+
+        if (request()->has('images_remove')) {
+            return  ImageService::removeImages(request()->input('images_remove'));
         }
 
         $user->update([

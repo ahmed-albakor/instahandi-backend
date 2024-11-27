@@ -2,6 +2,7 @@
 
 namespace App\Services\Helper;
 
+use App\Models\Image;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
@@ -31,5 +32,24 @@ class ImageService
     public static function updateImage($image, $folder, $oldImageName): string|null
     {
         return Storage::delete("public/" . $oldImageName) ? ImageService::storeImage($image, $folder) : null;
+    }
+
+    public static function removeImages($ids)
+    {
+        $existingImages = Image::whereIn('id', $ids)->get();
+
+        if (count($ids) !== $existingImages->count()) {
+            return [
+                'success' => false,
+                'message' => 'بعض الصور المطلوب حذفها غير موجودة.',
+            ];
+        }
+
+        foreach ($existingImages as $image) {
+            if (Storage::exists("public/" . $image->getRawOriginal('path'))) {
+                Storage::delete("public/" . $image->getRawOriginal('path'));
+            }
+            $image->delete();
+        }
     }
 }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::disableForeignKeyConstraints();
 
-        Schema::create('vendors_payments', function (Blueprint $table) {
+        Schema::create('vendor_payments', function (Blueprint $table) {
             $table->id();
             $table->string('code');
             $table->foreignId('vendor_id')->constrained();

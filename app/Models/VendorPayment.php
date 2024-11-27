@@ -12,4 +12,16 @@ class VendorPayment extends Model
     protected $dates = ['deleted_at'];
 
     protected $hidden = ['deleted_at'];
+
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
 }
