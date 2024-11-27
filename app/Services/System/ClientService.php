@@ -103,7 +103,7 @@ class ClientService
         }
 
         if (request()->has('images_remove')) {
-            return  ImageService::removeImages(request()->input('images_remove'));
+            ImageService::removeImages(request()->input('images_remove'));
         }
 
         $user->update([

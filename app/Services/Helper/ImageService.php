@@ -11,23 +11,30 @@ class ImageService
     private static function MakeFolder($folderName)
     {
         $pathFolder = storage_path(sprintf('app/public/%s', $folderName));
+
         if (!File::isDirectory($pathFolder)) {
-            File::makeDirectory($pathFolder);
+            File::makeDirectory($pathFolder, 0755, true, true);
         }
     }
+
 
     public static function storeImage($image, $folder, $name = null)
     {
         self::MakeFolder($folder);
+
         $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
         if ($name) {
             $imageName = $name . '-' . $imageName;
         }
-        // $imageName = $name != null ? $name : uniqid() . '.' . $image->getClientOriginalExtension();
-        $new_path = storage_path(sprintf('app/public/%s/%s', $folder, $imageName));
-        move_uploaded_file($image, $new_path);
+
+        $path = $image->storeAs(
+            "public/$folder",
+            $imageName
+        );
+
         return sprintf('%s/%s', $folder, $imageName);
     }
+
 
     public static function updateImage($image, $folder, $oldImageName): string|null
     {
