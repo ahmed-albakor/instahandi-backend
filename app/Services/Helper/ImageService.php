@@ -44,7 +44,7 @@ class ImageService
     public static function removeImages($ids)
     {
         if (!is_array($ids)) {
-            abort([
+            abort(422, [
                 'success' => false,
                 'message' => 'يجب تقديم معرفات الصور كمصفوفة غير فارغة.',
             ]);
@@ -53,7 +53,7 @@ class ImageService
         $existingImages = Image::whereIn('id', $ids)->get();
 
         if (count($ids) !== $existingImages->count()) {
-            abort([
+            abort(422, [
                 'success' => false,
                 'message' => 'بعض الصور المطلوب حذفها غير موجودة.',
             ]);
