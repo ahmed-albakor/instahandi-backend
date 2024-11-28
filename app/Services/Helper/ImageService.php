@@ -35,28 +35,24 @@ class ImageService
         return sprintf('%s/%s', $folder, $imageName);
     }
 
-    public static function storeImage($image, $folder, $name = null)
+    public static function storeImage2($image, $folder, $name = null)
     {
-        // إنشاء المجلد إذا لم يكن موجودًا
         self::MakeFolder($folder);
-
-        // إنشاء اسم فريد للملف
         $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
         if ($name) {
             $imageName = $name . '-' . $imageName;
         }
-
-        // مسار التخزين الجديد
-        $newPath = storage_path(sprintf('app/public/%s/%s', $folder, $imageName));
-
-        // استخدام getRealPath للتأكد من الحصول على المسار الحقيقي للملف المؤقت
-        if (move_uploaded_file($image->getRealPath(), $newPath)) {
-            return sprintf('%s/%s', $folder, $imageName);
-        }
-
-        throw new \Exception('Failed to move uploaded file.');
+        // $imageName = $name != null ? $name : uniqid() . '.' . $image->getClientOriginalExtension();
+        $new_path = storage_path(sprintf('app/public/%s/%s', $folder, $imageName));
+        move_uploaded_file($image, $new_path);
+        return sprintf('%s/%s', $folder, $imageName);
     }
 
+
+    public static function storeImage($image, $folder, $name = null)
+    {
+        return $image->store($folder, 'public');
+    }
 
 
     public static function updateImage($image, $folder, $oldImageName): string|null

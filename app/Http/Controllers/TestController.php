@@ -11,7 +11,7 @@ class TestController extends Controller
     {
         return response()->json(
             [
-                'res' =>  asset("storage/" . ImageService::storeImage(request()->image, 'test')),
+                'res' =>  asset("storage/" .  request()->image->store('test1', 'public')),
             ]
         );
     }
