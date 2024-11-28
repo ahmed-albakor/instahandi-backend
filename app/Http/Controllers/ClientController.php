@@ -61,7 +61,7 @@ class ClientController extends Controller
 
         return response()->json([
             'message' => 'Profile updated successfully!',
-            'user' => $updatedUser
+            'data' => $updatedUser
         ]);
     }
 }

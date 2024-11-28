@@ -64,7 +64,7 @@ class VendorController extends Controller
 
         return response()->json([
             'message' => 'Vendor profile updated successfully!',
-            'user' => $updatedUser,
+            'data' => $updatedUser,
         ]);
     }
 
