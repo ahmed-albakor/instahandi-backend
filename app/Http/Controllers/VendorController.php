@@ -63,6 +63,7 @@ class VendorController extends Controller
         $updatedUser = $this->vendorService->updateProfile($validatedData, $user);
 
         return response()->json([
+            'success' => true,
             'message' => 'Vendor profile updated successfully!',
             'data' => $updatedUser,
         ]);
