@@ -6,6 +6,7 @@ use App\Http\Requests\Vendor\SetupProfileRequest;
 use App\Http\Requests\Vendor\UpdateProfileRequest;
 use App\Http\Resources\VendorResource;
 use App\Models\User;
+use App\Services\Helper\ImageService;
 use App\Services\Helper\ResponseService;
 use App\Services\System\VendorService;
 use Illuminate\Http\Request;
@@ -94,4 +95,6 @@ class VendorController extends Controller
             'data' => new VendorResource($vendor),
         ]);
     }
+
+    
 }

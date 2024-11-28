@@ -10,6 +10,7 @@ use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\SystemReviewController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\VendorPaymentController;
@@ -217,3 +218,7 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
 
 
     });
+
+
+
+Route::post('testUploadImage', [TestController::class, 'testUploadImage']);

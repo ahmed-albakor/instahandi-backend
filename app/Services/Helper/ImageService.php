@@ -18,7 +18,7 @@ class ImageService
     }
 
 
-    public static function storeImage($image, $folder, $name = null)
+    public static function storeImage1($image, $folder, $name = null)
     {
         self::MakeFolder($folder);
 
@@ -32,6 +32,19 @@ class ImageService
             $imageName
         );
 
+        return sprintf('%s/%s', $folder, $imageName);
+    }
+
+    public static function storeImage($image, $folder, $name = null)
+    {
+        self::MakeFolder($folder);
+        $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
+        if ($name) {
+            $imageName = $name . '-' . $imageName;
+        }
+        // $imageName = $name != null ? $name : uniqid() . '.' . $image->getClientOriginalExtension();
+        $new_path = storage_path(sprintf('app/public/%s/%s', $folder, $imageName));
+        move_uploaded_file($image, $new_path);
         return sprintf('%s/%s', $folder, $imageName);
     }
 
