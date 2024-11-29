@@ -23,10 +23,11 @@ class ServiceRequestResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'client' => new ClientResource($this->whenLoaded('client')),
-            'service' => new ServiceResource($this->whenLoaded('service')), 
-            'proposals' => ProposalResource::collection($this->whenLoaded('proposals')), 
-            'location' => new LocationResource($this->whenLoaded('location')), 
-            'images' => ImageResource::collection($this->whenLoaded('images')), 
+            'service' => new ServiceResource($this->whenLoaded('service')),
+            'proposals' => ProposalResource::collection($this->whenLoaded('proposals')),
+            'proposals_count' =>  $this->proposals->count(),
+            'location' => new LocationResource($this->whenLoaded('location')),
+            'images' => ImageResource::collection($this->whenLoaded('images')),
         ];
     }
 }
