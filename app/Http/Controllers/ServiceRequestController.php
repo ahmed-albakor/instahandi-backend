@@ -40,7 +40,7 @@ class ServiceRequestController extends Controller
     {
         $serviceRequest = $this->serviceRequestService->show($id);
 
-        $serviceRequest->load(['location', 'client.user.location', 'proposals.vendor.user', 'images']);
+        $serviceRequest->load(['location', 'client.user.location', 'proposals.vendor.user', 'images', 'service']);
 
 
         return response()->json([
@@ -55,7 +55,7 @@ class ServiceRequestController extends Controller
 
         $serviceRequest = $this->serviceRequestService->create($validatedData);
 
-        $serviceRequest->load(['location', 'images']);
+        $serviceRequest->load(['location', 'images', 'service']);
 
         return response()->json([
             'success' => true,
@@ -73,8 +73,7 @@ class ServiceRequestController extends Controller
         $validatedData = $request->validated();
         $serviceRequest = $this->serviceRequestService->update($serviceRequest, $validatedData);
 
-        $serviceRequest->images = $serviceRequest->getImages();
-        $serviceRequest->load(['location']);
+        $serviceRequest->load(['location', 'images', 'service']);
 
 
         return response()->json([
