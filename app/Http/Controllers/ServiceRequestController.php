@@ -40,7 +40,7 @@ class ServiceRequestController extends Controller
     {
         $serviceRequest = $this->serviceRequestService->show($id);
 
-        $serviceRequest->load(['location', 'client.user.location', 'proposals.vendor.user', 'images', 'service']);
+        $serviceRequest->load(['location', 'client.user.location', 'proposals.vendor.user', 'proposals.vendor.services', 'images', 'service']);
 
 
         return response()->json([
