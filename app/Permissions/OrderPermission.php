@@ -20,7 +20,7 @@ class OrderPermission
                 $permission = $order->vendor_id == $user->vendor->id;
                 break;
             case 'client':
-                $permission = false;
+                $permission = $order->serviceRequest->client_id == $user->client->id;
                 break;
             default:
                 $permission = false;
