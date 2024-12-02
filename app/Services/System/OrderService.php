@@ -25,6 +25,12 @@ class OrderService
             $query->where('vendor_id', $user->vendor->id);
         }
 
+        if ($user->role == 'client') {
+            $query->whereHas('serviceRequest.client', function ($subQuery) use ($user) {
+                $subQuery->where('id', $user->client->id);
+            });
+        }
+
         $searchFields = ['code', 'title', 'description'];
         $numericFields = ['price', 'works_hours'];
         $dateFields = ['created_at', 'start_date', 'completion_date'];
@@ -98,8 +104,4 @@ class OrderService
     {
         $order->delete();
     }
-
-
-
-  
 }
