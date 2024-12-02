@@ -110,6 +110,10 @@ Route::middleware([ClientMiddleware::class, 'auth:sanctum'])
         Route::get('payments/{id}', [ClientPaymentController::class, 'show']);
         // Route::post('payments/', [ClientPaymentController::class, 'createPaymentIntent']);
         // Route::post('payments/confirm', [ClientPaymentController::class, 'confirmPayment']);
+
+
+        Route::get('orders/{id}', [OrderController::class, 'show']);
+        Route::get('orders/', [OrderController::class, 'index']);
     });
 
 
