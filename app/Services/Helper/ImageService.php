@@ -37,7 +37,7 @@ class ImageService
 
     public static function storeImage($image, $folder, $name = null)
     {
-        self::MakeFolder($folder);
+        self::MakeFolder($folder); 
         $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
         if ($name) {
             $imageName = $name . '-' . $imageName;
