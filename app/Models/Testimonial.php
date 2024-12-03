@@ -24,6 +24,20 @@ class Testimonial extends Model
         'admin_id',
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'message' => 'string',
+        'rating' => 'integer',
+        'client_name' => 'string',
+        'job' => 'string',
+        'profile_photo' => 'string',
+        'admin_id' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
+
 
     protected function profilePhoto(): Attribute
     {

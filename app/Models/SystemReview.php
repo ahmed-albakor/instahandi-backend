@@ -19,6 +19,17 @@ class SystemReview extends Model
         'review',
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'user_id' => 'integer',
+        'rating' => 'integer',
+        'review' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
+
     public function user()
     {
         return $this->belongsTo(User::class);

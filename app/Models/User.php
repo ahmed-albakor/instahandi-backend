@@ -36,6 +36,28 @@ class User extends Authenticatable
         'email_verified_at'
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'code' => 'string',
+        'first_name' => 'string',
+        'last_name' => 'string',
+        'email' => 'string',
+        'password' => 'string',
+        'role' => 'string',
+        'phone' => 'string',
+        'description' => 'string',
+        'profile_photo' => 'string',
+        'approve' => 'boolean',
+        'profile_setup' => 'boolean',
+        'verify_code' => 'string',
+        'code_expiry_date' => 'datetime',
+        'email_verified_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
+
     use SoftDeletes;
 
     protected $dates = ['deleted_at'];

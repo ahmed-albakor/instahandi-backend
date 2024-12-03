@@ -14,6 +14,13 @@ class VendorService extends Model
         'service_id',
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'vendor_id' => 'integer',
+        'service_id' => 'integer',
+    ];
+
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);

@@ -19,6 +19,16 @@ class Image extends Model
 
     protected $hidden = ['deleted_at'];
 
+    protected $casts = [
+        'id' => 'integer',
+        'code' => 'string',
+        'path' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
+
     protected function path(): Attribute
     {
         return Attribute::make(

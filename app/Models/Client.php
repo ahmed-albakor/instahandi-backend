@@ -25,6 +25,16 @@ class Client extends Model
         'updated_at'
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'user_id' => 'integer',
+        'code' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -52,5 +62,4 @@ class Client extends Model
     {
         return $this->hasMany(VendorReview::class);
     }
-
 }

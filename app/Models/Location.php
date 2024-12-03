@@ -23,4 +23,19 @@ class Location extends Model
         'state',
         'zip_code',
     ];
+
+    protected $casts = [
+        'id' => 'integer',
+        'code' => 'string',
+        'street_address' => 'string',
+        'exstra_address' => 'string',
+        'country' => 'string',
+        'city' => 'string',
+        'state' => 'string',
+        'zip_code' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+    
 }

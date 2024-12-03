@@ -31,6 +31,26 @@ class Order extends Model
         'updated_at',
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'code' => 'string',
+        'service_request_id' => 'integer',
+        'proposal_id' => 'integer',
+        'status' => 'string',
+        'title' => 'string',
+        'description' => 'string',
+        'vendor_id' => 'integer',
+        'price' => 'float',
+        'payment_type' => 'string',
+        'works_hours' => 'integer',
+        'start_date' => 'datetime',
+        'completion_date' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
+
     public function serviceRequest(): BelongsTo
     {
         return $this->belongsTo(ServiceRequest::class);

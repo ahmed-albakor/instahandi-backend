@@ -27,6 +27,22 @@ class Vendor extends Model
         'updated_at'
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'code' => 'string',
+        'user_id' => 'integer',
+        'account_type' => 'string',
+        'years_experience' => 'integer',
+        'longitude' => 'string',
+        'latitude' => 'string',
+        'has_crew' => 'boolean',
+        'crew_members' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -67,6 +83,4 @@ class Vendor extends Model
     {
         return $this->belongsToMany(Service::class, 'vendor_services', 'vendor_id', 'service_id');
     }
-
-    
 }

@@ -22,6 +22,19 @@ class VendorReview extends Model
         'review',
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'order_id' => 'integer',
+        'vendor_id' => 'integer',
+        'client_id' => 'integer',
+        'rating' => 'integer',
+        'review' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
+
     public function client()
     {
         return $this->belongsTo(Client::class);

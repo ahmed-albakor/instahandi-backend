@@ -30,6 +30,23 @@ class ServiceRequest extends Model
         'service_id',
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'client_id' => 'integer',
+        'service_id' => 'integer',
+        'price' => 'float',
+        'estimated_hours' => 'string',
+        'start_date' => 'datetime',
+        'completion_date' => 'datetime',
+        'status' => 'string',
+        'payment_type' => 'string',
+        'deleted_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+
+
     public function client()
     {
         return $this->belongsTo(Client::class);
@@ -59,5 +76,4 @@ class ServiceRequest extends Model
     {
         return $this->hasMany(Order::class);
     }
-
 }

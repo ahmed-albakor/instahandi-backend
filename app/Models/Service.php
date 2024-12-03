@@ -21,6 +21,18 @@ class Service extends Model
         'main_image',
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'code' => 'string',
+        'name' => 'string',
+        'description' => 'string',
+        'main_image' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
+
     protected function mainImage(): Attribute
     {
         return Attribute::make(

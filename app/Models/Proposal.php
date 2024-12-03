@@ -23,6 +23,21 @@ class Proposal extends Model
         'payment_type',
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'code' => 'string',
+        'service_request_id' => 'integer',
+        'vendor_id' => 'integer',
+        'message' => 'string',
+        'price' => 'float',
+        'status' => 'string',
+        'payment_type' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
+
     public function serviceRequest()
     {
         return $this->belongsTo(ServiceRequest::class, 'service_request_id');

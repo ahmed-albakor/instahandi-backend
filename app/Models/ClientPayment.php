@@ -20,6 +20,21 @@ class ClientPayment extends Model
         'payment_data',
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'client_id' => 'integer',
+        'service_request_id' => 'integer',
+        'amount' => 'float',
+        'method' => 'string',
+        'status' => 'string',
+        'description' => 'string',
+        'payment_data' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
+
     public function client()
     {
         return $this->belongsTo(Client::class);

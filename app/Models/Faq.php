@@ -14,4 +14,15 @@ class Faq extends Model
     protected $dates = ['deleted_at'];
 
     protected $hidden = ['deleted_at'];
+
+
+    protected $casts = [
+        'id' => 'integer',
+        'question' => 'string',
+        'answer' => 'string',
+        'admin_id' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 }
