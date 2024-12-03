@@ -35,7 +35,7 @@ class ImageService
         return sprintf('%s/%s', $folder, $imageName);
     }
 
-    public static function storeImage2($image, $folder, $name = null)
+    public static function storeImage($image, $folder, $name = null)
     {
         self::MakeFolder($folder);
         $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
@@ -49,7 +49,7 @@ class ImageService
     }
 
 
-    public static function storeImage($image, $folder, $name = null)
+    public static function storeImage2($image, $folder, $name = null)
     {
         return $image->store($folder, 'public');
     }
