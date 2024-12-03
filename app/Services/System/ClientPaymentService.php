@@ -10,7 +10,7 @@ class ClientPaymentService
 {
     public function getAllPayments()
     {
-        $query = ClientPayment::query()->with(['client.user', 'serviceRequest']);
+        $query = ClientPayment::query()->with(['client.user', 'serviceRequest.service']);
 
         $user = Auth::user();
         if ($user->role == 'client') {
