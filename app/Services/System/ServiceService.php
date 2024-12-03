@@ -14,12 +14,14 @@ class ServiceService
         $service = Service::find($id);
 
 
-        abort(
-            response()->json([
-                'success' => false,
-                'message' => 'Service not found.',
-            ], 404)
-        );
+        if (!$service) {
+            abort(
+                response()->json([
+                    'success' => false,
+                    'message' => 'Service not found.',
+                ], 404)
+            );
+        }
 
         return $service;
     }
