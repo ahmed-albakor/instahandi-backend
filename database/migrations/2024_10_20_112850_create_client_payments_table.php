@@ -22,7 +22,7 @@ return new class extends Migration
             $table->enum('method', ["stripe"]);
             $table->enum('status', ['pending', "confirm", "return", "cancel"]);
             $table->text('description')->nullable();
-            $table->json('payment_data');
+            $table->json('payment_data')->nullable();;
             $table->timestamps();
             $table->softDeletes();
         });

@@ -8,6 +8,7 @@ use App\Http\Resources\ClientPaymentResource;
 use App\Models\ServiceRequest;
 use App\Models\User;
 use App\Permissions\ClientPaymentPermission;
+use App\Services\Helper\ResponseService;
 use App\Services\Helper\StripeService;
 use App\Services\System\ClientPaymentService;
 use Illuminate\Support\Facades\Auth;
@@ -31,11 +32,7 @@ class ClientPaymentController extends Controller
         return response()->json([
             'success' => true,
             'data' => ClientPaymentResource::collection($payments->items()),
-            'meta' => [
-                'current_page' => $payments->currentPage(),
-                'last_page' => $payments->lastPage(),
-                'total' => $payments->total(),
-            ],
+            'meta' => ResponseService::meta($payments),
         ]);
     }
 
