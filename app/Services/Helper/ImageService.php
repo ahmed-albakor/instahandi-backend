@@ -18,23 +18,6 @@ class ImageService
     }
 
 
-    public static function storeImage1($image, $folder, $name = null)
-    {
-        self::MakeFolder($folder);
-
-        $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
-        if ($name) {
-            $imageName = $name . '-' . $imageName;
-        }
-
-        $path = $image->storeAs(
-            "public/$folder",
-            $imageName
-        );
-
-        return sprintf('%s/%s', $folder, $imageName);
-    }
-
     public static function storeImage($image, $folder, $name = null)
     {
         self::MakeFolder($folder);

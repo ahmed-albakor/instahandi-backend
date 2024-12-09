@@ -23,7 +23,8 @@ class VendorService
 
         $this->handleOptionalFields($validatedData, $user);
 
-        $user->update($this->extractUserFields($validatedData, $user) + ['profile_setup' => true]);
+        $user->update($this->extractUserFields($validatedData, $user));
+        $user->update(['profile_setup' => true]);
 
         if (isset($validatedData['service_ids'])) {
             $this->updateVendorServices($validatedData['service_ids'], $vendor);
