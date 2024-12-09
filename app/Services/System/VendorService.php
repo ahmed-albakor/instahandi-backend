@@ -15,7 +15,7 @@ class VendorService
 {
     public function setupVendorProfile(array $validatedData, User $user)
     {
-        if ($user->profile_setup == 0) return $user;
+        if ($user->profile_setup) return $user;
 
         $vendor = $this->createVendor($validatedData, $user);
 
