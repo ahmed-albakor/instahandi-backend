@@ -22,6 +22,8 @@ class Location extends Model
         'city',
         'state',
         'zip_code',
+        'longitude',
+        'latitude',
     ];
 
     protected $casts = [
@@ -33,6 +35,8 @@ class Location extends Model
         'city' => 'string',
         'state' => 'string',
         'zip_code' => 'string',
+        'longitude' => 'string',
+        'latitude' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',

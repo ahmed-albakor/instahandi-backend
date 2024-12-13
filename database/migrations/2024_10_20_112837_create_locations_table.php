@@ -22,8 +22,10 @@ return new class extends Migration
             $table->string('city', 50);
             $table->string('state', 20);
             $table->string('zip_code', 20);
-            $table->timestamps(); 
-            $table->softDeletes(); 
+            $table->string('longitude')->nullable();
+            $table->string('latitude')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
         });
 
 
