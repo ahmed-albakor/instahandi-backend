@@ -13,7 +13,8 @@ class LocationsService
     private static function getCoordinates($address)
     {
         // Replace with your Google Maps API Key
-        $apiKey = config('services.google_maps.api_key');
+        // $apiKey = config('services.google_maps.api_key');
+        $apiKey = 'AIzaSyCkMlal5E0x_tV7q0AtwP8hLA_XJQBwSfo';
 
         $response = Http::get("https://maps.googleapis.com/maps/api/geocode/json", [
             'address' => $address,
