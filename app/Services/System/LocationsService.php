@@ -16,11 +16,13 @@ class LocationsService
         // $apiKey = config('services.google_maps.api_key');
         $apiKey = 'AIzaSyCkMlal5E0x_tV7q0AtwP8hLA_XJQBwSfo';
 
+        // Send request to Google Maps API
         $response = Http::get("https://maps.googleapis.com/maps/api/geocode/json", [
             'address' => $address,
             'key' => $apiKey,
         ]);
 
+        // Check if the response is successful and contains location data
         if ($response->successful() && isset($response['results'][0]['geometry']['location'])) {
             $location = $response['results'][0]['geometry']['location'];
             return [
@@ -29,8 +31,13 @@ class LocationsService
             ];
         }
 
-        throw new \Exception('Unable to fetch coordinates for the given address.');
+        // Return null if the address is invalid or the API fails
+        return [
+            'latitude' => null,
+            'longitude' => null,
+        ];
     }
+
 
     /**
      * Create a new location record.
