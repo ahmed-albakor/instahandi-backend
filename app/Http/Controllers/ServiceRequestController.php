@@ -71,6 +71,7 @@ class ServiceRequestController extends Controller
         ServiceRequestPermission::update($serviceRequest);
 
         $validatedData = $request->validated();
+
         $serviceRequest = $this->serviceRequestService->update($serviceRequest, $validatedData);
 
         $serviceRequest->load(['location', 'images', 'service']);

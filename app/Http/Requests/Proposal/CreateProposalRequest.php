@@ -29,7 +29,8 @@ class CreateProposalRequest extends FormRequest
             'vendor_id' => $this->user()->role === 'vendor' ? 'nullable' : 'required|exists:vendors,id,deleted_at,NULL',
             'message' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'payment_type' => ['required', Rule::in(['flat_rate', 'hourly_rate'])],
+            'payment_type' => 'required|in:flat_rate,hourly_rate',
+            'estimated_hours' => 'required_if:payment_type,hourly_rate|string|max:50',
         ];
     }
 }

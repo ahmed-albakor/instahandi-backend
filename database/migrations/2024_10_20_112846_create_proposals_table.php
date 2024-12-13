@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('service_request_id')->constrained('service_requests')->onDelete('cascade');
             $table->foreignId('vendor_id')->constrained('vendors')->onDelete('cascade');
             $table->text('message');
+            $table->string('estimated_hours', 50)->nullable();
             $table->decimal('price', 10, 2)->default(0);
             $table->enum('status', ['pending', 'accepted', 'rejected', 'canceled'])->default('pending');
             $table->enum('payment_type', ['flat_rate', 'hourly_rate']);

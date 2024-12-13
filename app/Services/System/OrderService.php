@@ -17,6 +17,7 @@ class OrderService
 
         $query = Order::query()->with([
             'serviceRequest.client.user',
+            'serviceRequest.service',
             'vendor.user',
             'proposal'
         ]);

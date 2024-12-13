@@ -105,7 +105,7 @@ class VendorService
     // Create or Update Location
     private function updateOrCreateLocation(array $data, User $user)
     {
-        Location::updateOrCreate(
+        LocationsService::updateOrCreate(
             ['code' => $user->code],
             [
                 'street_address' => $data['street_address'] ?? $user->location->street_address,

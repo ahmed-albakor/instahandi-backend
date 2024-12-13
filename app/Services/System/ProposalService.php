@@ -12,6 +12,12 @@ class ProposalService
     {
         $query = Proposal::query()->with(['serviceRequest', 'vendor.user.location']);
 
+
+        $user = Auth::user();
+        if ($user->role == 'vendor') {
+            $query->where('vendor_id', $user->vendor->id);
+        }
+
         $searchFields = ['code', 'message'];
         $numericFields = ['price'];
         $dateFields = ['created_at'];

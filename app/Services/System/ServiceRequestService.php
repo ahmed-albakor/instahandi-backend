@@ -75,7 +75,7 @@ class ServiceRequestService
         $serviceRequest->update(['code' => 'SRVREQ' . sprintf('%03d', $serviceRequest->id)]);
 
 
-        Location::create([
+        LocationsService::create([
             'code' => $serviceRequest->code,
             'street_address' => $validatedData['street_address'],
             'exstra_address' => $validatedData['exstra_address'] ?? null,
@@ -112,7 +112,7 @@ class ServiceRequestService
         ]);
 
         if (!empty($locationData)) {
-            Location::updateOrCreate(
+            LocationsService::updateOrCreate(
                 ['code' => $serviceRequest->code],
                 $locationData
             );

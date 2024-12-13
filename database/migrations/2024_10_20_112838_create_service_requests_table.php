@@ -21,13 +21,13 @@ return new class extends Migration
             $table->text('description');
             $table->enum('status', ['pending', 'accepted', 'completed', 'rejected', 'canceled']);
             $table->enum('payment_type', ['flat_rate', 'hourly_rate']);
-            $table->string('estimated_hours', 50);
+            $table->string('estimated_hours', 50)->nullable();
             $table->decimal('price', 8, 2)->default(0);
             $table->dateTime('start_date')->nullable();
             $table->dateTime('completion_date')->nullable();
             $table->foreignId('service_id')->constrained('services');
-            $table->timestamps(); 
-            $table->softDeletes(); 
+            $table->timestamps();
+            $table->softDeletes();
         });
 
 

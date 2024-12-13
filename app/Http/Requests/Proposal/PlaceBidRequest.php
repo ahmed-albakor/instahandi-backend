@@ -5,7 +5,7 @@ namespace App\Http\Requests\Proposal;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateProposalRequest extends FormRequest
+class PlaceBidRequest extends FormRequest
 {
     protected $stopOnFirstFailure = true;
 
@@ -25,10 +25,8 @@ class UpdateProposalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'message' => 'nullable|string',
-            'price' => 'nullable|numeric|min:0',
-            'payment_type' => 'nullable|in:flat_rate,hourly_rate',
-            'estimated_hours' => 'nullable|string|max:50',
+            'service_request_id' => 'required|exists:service_requests,id,deleted_at,NULL',
+            'vendor_id' => $this->user()->role === 'vendor' ? 'nullable' : 'required|exists:vendors,id,deleted_at,NULL',
         ];
     }
 }

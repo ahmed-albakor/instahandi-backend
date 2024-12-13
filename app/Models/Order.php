@@ -21,6 +21,7 @@ class Order extends Model
         'status',
         'title',
         'description',
+        'estimated_hours',
         'vendor_id', // 
         'price',
         'payment_type',
@@ -39,6 +40,7 @@ class Order extends Model
         'status' => 'string',
         'title' => 'string',
         'description' => 'string',
+        'estimated_hours' => 'string',
         'vendor_id' => 'integer',
         'price' => 'float',
         'payment_type' => 'string',

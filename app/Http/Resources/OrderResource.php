@@ -25,6 +25,7 @@ class OrderResource extends JsonResource
             'vendor_id' => $this->vendor_id,
             'price' => $this->price,
             'payment_type' => $this->payment_type,
+            'estimated_hours' => $this->estimated_hours,
             'works_hours' => $this->works_hours,
             'start_date' => $this->start_date,
             'completion_date' => $this->completion_date,
@@ -37,5 +38,4 @@ class OrderResource extends JsonResource
             'images' => ImageResource::collection($this->whenLoaded('images')),
         ];
     }
-
 }

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('status', ["pending", "execute", "completed", "canceled"]);
             $table->string('title', 255);
             $table->text('description');
+            $table->string('estimated_hours', 50)->nullable();
             $table->foreignId('vendor_id')->constrained('vendors');
             $table->decimal('price', 10, 2);
             $table->enum('payment_type', ["flat_rate", "hourly_rate"]);

@@ -23,7 +23,7 @@ class ClientService
             'code' => 'CLT' . sprintf('%03d', $client->id),
         ]);
 
-        Location::updateOrCreate(
+        LocationsService::updateOrCreate(
             ['code' => $user->code],
             [
                 'street_address' => $validatedData['street_address'],
@@ -75,7 +75,7 @@ class ClientService
 
     public function updateProfile($validatedData, $user)
     {
-        Location::updateOrCreate(
+        LocationsService::updateOrCreate(
             ['code' => $user->code],
             [
                 'street_address' => $validatedData['street_address'] ?? $user->location->street_address,
