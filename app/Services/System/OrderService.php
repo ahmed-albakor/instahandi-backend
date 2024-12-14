@@ -36,7 +36,7 @@ class OrderService
         $numericFields = ['price', 'works_hours'];
         $dateFields = ['created_at', 'start_date', 'completion_date'];
         $exactMatchFields = ['service_request_id', 'vendor_id', 'proposal_id', 'status', 'payment_type'];
-        $inFields = [];
+        $inFields = ['status'];
 
         $orders =  FilterService::applyFilters(
             $query,
