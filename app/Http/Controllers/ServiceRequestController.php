@@ -72,6 +72,17 @@ class ServiceRequestController extends Controller
 
         $validatedData = $request->validated();
 
+        if (!empty($validatedData['status']) && $validatedData['status'] === 'canceled') {
+            $restrictedStatuses = ['accepted', 'completed', 'rejected', 'canceled'];
+            if (!in_array($serviceRequest->status, $restrictedStatuses)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "You cannot cancel the service request while it is in the '{$serviceRequest->status}' status.",
+                ], 403);
+            }
+        }
+
+
         $serviceRequest = $this->serviceRequestService->update($serviceRequest, $validatedData);
 
         $serviceRequest->load(['location', 'images', 'service']);
@@ -219,8 +230,24 @@ class ServiceRequestController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Vendor hired successfully.',
+            'message' => 'Vendor hired successfully, Service created.',
             'data' => $order,
+        ], 201);
+    }
+
+    public function rejectVendor($id, HireVendorRequest $request)
+    {
+        $serviceRequest = $this->serviceRequestService->show($id);
+
+        $proposal = Proposal::find($request->proposal_id);
+
+        ServiceRequestPermission::hireVendor($serviceRequest, $proposal);
+
+        $result = $this->serviceRequestService->rejectVendor($proposal);
+
+        return response()->json([
+            'success' => $result,
+            'message' => $result ? 'The proposal was successfully rejected.' : 'The proposal failed to be rejected.',
         ], 201);
     }
 }

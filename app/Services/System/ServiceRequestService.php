@@ -16,6 +16,9 @@ class ServiceRequestService
     {
         $query = ServiceRequest::query()->with(['location', 'images', 'client.user']);
 
+        $requests = request()->all();
+        $requests['not_in_status'] = ['rejected', 'canceled'];
+
 
         $searchFields = ['code', 'title', 'description'];
         $numericFields = ['price'];
@@ -25,7 +28,7 @@ class ServiceRequestService
 
         $serviceRequests =  FilterService::applyFilters(
             $query,
-            request()->all(),
+            $requests,
             $searchFields,
             $numericFields,
             $dateFields,
@@ -218,5 +221,20 @@ class ServiceRequestService
 
 
         return $order;
+    }
+
+    public function rejectVendor($proposal)
+    {
+
+        $proposal->update(
+            [
+                'status' => 'rejected',
+            ]
+        );
+
+        // TODO : Send Notification to Vendor for tell him
+
+
+        return true;
     }
 }

@@ -81,6 +81,7 @@ Route::middleware([ClientMiddleware::class, 'auth:sanctum'])
         Route::post('/service-requests/{id}/delete-images', [ServiceRequestController::class, 'deleteAdditionalImages']);
         # Vendor
         Route::post('/service-requests/{id}/hire-vendor', [ServiceRequestController::class, 'hireVendor']);
+        Route::post('/service-requests/{id}/reject-vendor', [ServiceRequestController::class, 'rejectVendor']);
         ########## ServiceRequests End ########## 
 
 
