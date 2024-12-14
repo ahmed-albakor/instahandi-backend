@@ -97,6 +97,12 @@ class User extends Authenticatable
         );
     }
 
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->first_name . ' ' . $this->last_name,
+        );
+    }
 
 
     public function vendor()
