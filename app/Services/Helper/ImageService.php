@@ -27,19 +27,19 @@ class ImageService
                 [
                     'success' => false,
                     'message' => 'Invalid file provided.',
-                ]
+                ],
+                422
             ));
         }
 
-        $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
-        if ($name) {
-            $imageName = $name . '-' . $imageName;
-        }
-        // $imageName = $name != null ? $name : uniqid() . '.' . $image->getClientOriginalExtension();
-        $new_path = storage_path(sprintf('app/public/%s/%s', $folder, $imageName));
-        move_uploaded_file($image, $new_path);
-        return sprintf('%s/%s', $folder, $imageName);
+        $imageName = $name ? $name . '-' . uniqid() . '.' . $image->getClientOriginalExtension()
+            : uniqid() . '.' . $image->getClientOriginalExtension();
+
+        $path = $image->storeAs('public/' . $folder, $imageName);
+
+        return str_replace('public/', '', $path);
     }
+
 
 
     public static function updateImage($image, $folder, $oldImageName): string|null
