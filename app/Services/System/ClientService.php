@@ -87,20 +87,24 @@ class ClientService
             ]
         );
 
-        if (isset($validatedData['profile_photo'])) {
+        if (isset($validatedData['profile_photo']) && $validatedData['profile_photo']->isValid()) {
             $profilePhotoPath = ImageService::storeImage($validatedData['profile_photo'], 'profile_photos');
             $user->update(['profile_photo' => $profilePhotoPath]);
         }
 
+
         if (isset($validatedData['additional_images'])) {
             foreach ($validatedData['additional_images'] as $image) {
-                $imagePath = ImageService::storeImage($image, 'client_images');
-                Image::create([
-                    'code' => $user->code,
-                    'path' => $imagePath,
-                ]);
+                if ($image->isValid()) {
+                    $imagePath = ImageService::storeImage($image, 'client_images');
+                    Image::create([
+                        'code' => $user->code,
+                        'path' => $imagePath,
+                    ]);
+                }
             }
         }
+
 
         if (request()->has('images_remove')) {
             ImageService::removeImages(request()->input('images_remove'));

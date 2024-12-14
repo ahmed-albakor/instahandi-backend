@@ -21,6 +21,16 @@ class ImageService
     public static function storeImage($image, $folder, $name = null)
     {
         self::MakeFolder($folder);
+
+        if (!$image || !$image->isValid()) {
+            abort(response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Invalid file provided.',
+                ]
+            ));
+        }
+
         $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
         if ($name) {
             $imageName = $name . '-' . $imageName;
@@ -29,12 +39,6 @@ class ImageService
         $new_path = storage_path(sprintf('app/public/%s/%s', $folder, $imageName));
         move_uploaded_file($image, $new_path);
         return sprintf('%s/%s', $folder, $imageName);
-    }
-
-
-    public static function storeImage2($image, $folder, $name = null)
-    {
-        return $image->store($folder, 'public');
     }
 
 
