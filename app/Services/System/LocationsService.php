@@ -59,11 +59,8 @@ class LocationsService
     /**
      * Create or update a location record.
      */
-    public static function updateOrCreate(array $data)
+    public static function updateOrCreate($cond, array $data)
     {
-        // Extract the unique key from data (e.g., `code`)
-        $uniqueKey = ['code' => $data['code']];
-
         // Prepare the full address
         $address = "{$data['street_address']}, {$data['city']}, {$data['state']}, {$data['country']}, {$data['zip_code']}";
 
@@ -74,6 +71,6 @@ class LocationsService
         $data = array_merge($data, $coordinates);
 
         // Use updateOrCreate to insert or update based on the unique key
-        return Location::updateOrCreate($uniqueKey, $data);
+        return Location::updateOrCreate($cond, $data);
     }
 }
