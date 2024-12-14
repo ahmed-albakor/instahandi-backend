@@ -186,7 +186,7 @@ class VendorService
     {
         $query = Vendor::query()->with(['user.location', 'services']);
 
-        $searchFields = ['code', 'user.first_name', 'user.last_name', 'user.email', 'user.phone', 'user.full_name'];
+        $searchFields = ['code', 'user.first_name', 'user.last_name', 'user.email', 'user.phone'];
         $numericFields = ['years_experience',];
         $dateFields = ['created_at'];
         $exactMatchFields = ['user_id', 'account_type', 'has_crew'];
