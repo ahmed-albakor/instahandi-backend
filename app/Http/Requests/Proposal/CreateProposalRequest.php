@@ -30,7 +30,7 @@ class CreateProposalRequest extends FormRequest
             'message' => 'required|string',
             'price' => 'required|numeric|min:0',
             'payment_type' => 'required|in:flat_rate,hourly_rate',
-            'estimated_hours' => 'required_if:payment_type,hourly_rate|string|max:50',
+            'estimated_hours' => 'nullable|required_if:payment_type,hourly_rate|string|max:50',
         ];
     }
 }

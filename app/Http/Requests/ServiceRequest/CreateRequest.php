@@ -28,7 +28,7 @@ class CreateRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'payment_type' => 'required|in:flat_rate,hourly_rate',
-            'estimated_hours' => 'required_if:payment_type,hourly_rate|string|max:50',
+            'estimated_hours' => 'nullable|required_if:payment_type,hourly_rate|string|max:50',
             'price' => 'required|numeric|min:0',
             'start_date' => 'required|date',
             'completion_date' => 'required|date',

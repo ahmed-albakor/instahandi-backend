@@ -31,7 +31,7 @@ class CreateOrderRequest extends FormRequest
             'status' => 'required|in:pending,execute,completed,canceled',
             'price' => 'required|numeric|min:0',
             'payment_type' => 'required|in:flat_rate,hourly_rate',
-            'estimated_hours' => 'required_if:payment_type,hourly_rate|string|max:50',
+            'estimated_hours' => 'nullable|required_if:payment_type,hourly_rate|string|max:50',
             'works_hours' => 'nullable|integer',
             'start_date' => 'nullable|date',
             'completion_date' => 'nullable|date',
