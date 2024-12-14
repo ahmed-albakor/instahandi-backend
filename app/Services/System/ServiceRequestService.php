@@ -21,7 +21,7 @@ class ServiceRequestService
         $numericFields = ['price'];
         $dateFields = ['created_at'];
         $exactMatchFields = ['payment_type', 'status', 'client_id'];
-        $inFields = [];
+        $inFields = ['status'];
 
         $serviceRequests =  FilterService::applyFilters(
             $query,
