@@ -128,21 +128,37 @@ class FilterService
     protected static function applyInFilters(Builder $query, array $filters, array $inFields = [])
     {
         foreach ($inFields as $field) {
-            if (strpos($field, '.') !== false) {
-                [$relation, $relationField] = explode('.', $field, 2);
-                if (isset($filters[$field]) && is_array($filters[$field])) {
-                    $query->whereHas($relation, function ($q) use ($relationField, $filters, $field) {
-                        $q->whereIn($relationField, $filters[$field]);
+            $inKey = "in_{$field}";
+            $notInKey = "not_in_{$field}";
+
+            // Handle 'in' filters
+            if (isset($filters[$inKey]) && is_array($filters[$inKey])) {
+                if (strpos($field, '.') !== false) {
+                    [$relation, $relationField] = explode('.', $field, 2);
+                    $query->whereHas($relation, function ($q) use ($relationField, $filters, $inKey) {
+                        $q->whereIn($relationField, $filters[$inKey]);
                     });
+                } else {
+                    $query->whereIn($field, $filters[$inKey]);
                 }
-            } else {
-                if (isset($filters[$field]) && is_array($filters[$field])) {
-                    $query->whereIn($field, $filters[$field]);
+            }
+
+            // Handle 'not_in' filters
+            if (isset($filters[$notInKey]) && is_array($filters[$notInKey])) {
+                if (strpos($field, '.') !== false) {
+                    [$relation, $relationField] = explode('.', $field, 2);
+                    $query->whereHas($relation, function ($q) use ($relationField, $filters, $notInKey) {
+                        $q->whereNotIn($relationField, $filters[$notInKey]);
+                    });
+                } else {
+                    $query->whereNotIn($field, $filters[$notInKey]);
                 }
             }
         }
+
         return $query;
     }
+
 
     protected static function applySorting(Builder $query, $sortField, $sortOrder)
     {
