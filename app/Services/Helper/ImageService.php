@@ -20,8 +20,6 @@ class ImageService
 
     public static function storeImage($image, $folder, $name = null)
     {
-        self::MakeFolder($folder);
-
         if (!$image || !$image->isValid()) {
             abort(response()->json(
                 [
@@ -35,10 +33,11 @@ class ImageService
         $imageName = $name ? $name . '-' . uniqid() . '.' . $image->getClientOriginalExtension()
             : uniqid() . '.' . $image->getClientOriginalExtension();
 
-        $path = $image->storeAs('public/' . $folder, $imageName);
+        $path = $image->storeAs($folder, $imageName, 'public');
 
-        return str_replace('public/', '', $path);
+        return $path;
     }
+
 
 
 
