@@ -30,6 +30,7 @@ Route::get('/user', function (Request $request) {
 Route::prefix('public')
     ->group(function () {
         Route::get('/home-data', [HomeController::class, 'getData']);
+        Route::get('/home/search', [HomeController::class, 'search']);
         Route::get('/services', [ServiceController::class, 'index']);
         Route::get('/vendors', [VendorController::class, 'index']);
         Route::get('/vendors/{id}', [VendorController::class, 'show']);

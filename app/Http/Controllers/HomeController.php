@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ServiceResource;
 use App\Http\Resources\VendorResource;
 use App\Models\Faq;
 use App\Models\Service;
 use App\Models\Testimonial;
 use App\Models\Vendor;
+use App\Services\System\ServiceService;
+use App\Services\System\VendorService;
 
 class HomeController extends Controller
 {
@@ -36,6 +39,25 @@ class HomeController extends Controller
                     'vendors' => VendorResource::collection($vendors),
                     'testimonials' => $testimonials,
                     'faqs' => $faqs,
+                ],
+            ]
+        );
+    }
+
+    public function search()
+    {
+        $vendorService = new VendorService();
+        $serviceService = new ServiceService();
+
+        $vendors = $vendorService->index();
+        $services = $serviceService->getAllServices();
+
+        return response()->json(
+            [
+                'success' => true,
+                'data' => [
+                    'vendors' => VendorResource::collection($vendors),
+                    'services' => ServiceResource::collection($services),
                 ],
             ]
         );
