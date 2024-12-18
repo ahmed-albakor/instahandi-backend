@@ -18,23 +18,26 @@ class UserResource extends JsonResource
                 $hidden = $user->id != $this->id;
             }
         }
+
         return [
             'id' => $this->id,
             'code' => $this->code,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
-            'email' => $this->when(!$hidden, $this->email),
-            'phone' => $this->when(!$hidden, $this->phone),
-            'approve' => $this->when(!$hidden, $this->approve),
-            'profile_setup' => $this->when(!$hidden, $this->profile_setup),
-            'verify_code' => $this->when(!$hidden, $this->verify_code),
-            'code_expiry_date' => $this->when(!$hidden, $this->code_expiry_date),
-            'email_verified_at' => $this->when(!$hidden, $this->email_verified_at),
+            'email' => $this->when(! $hidden, $this->email),
+            'phone' => $this->when(! $hidden, $this->phone),
+            'approve' => $this->when(! $hidden, $this->approve),
+            'profile_setup' => $this->when(! $hidden, $this->profile_setup),
+            'verify_code' => $this->when(! $hidden, $this->verify_code),
+            'code_expiry_date' => $this->when(! $hidden, $this->code_expiry_date),
+            'email_verified_at' => $this->when(! $hidden, $this->email_verified_at),
             'role' => $this->role,
             'description' => $this->description,
             'profile_photo' => $this->profile_photo,
             'location' => new LocationResource($this->whenLoaded('location')),
             'images' => ImageResource::collection($this->whenLoaded('images')),
+            'vendor' => new VendorResource($this->whenLoaded('vendor')),
+            'client' => new ClientResource($this->whenLoaded('client')),
         ];
     }
 }

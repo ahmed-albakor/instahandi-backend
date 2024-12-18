@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Vendor\SetupProfileRequest;
 use App\Http\Requests\Vendor\UpdateProfileRequest;
 use App\Http\Resources\VendorResource;
-use App\Models\User;
-use App\Services\Helper\ImageService;
+use App\Http\Resources\UserResource;
 use App\Services\Helper\ResponseService;
 use App\Services\System\VendorService;
 use Illuminate\Http\Request;
@@ -50,7 +49,7 @@ class VendorController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $user
+            'data' =>  new UserResource($user),
         ], 200);
     }
 
@@ -96,5 +95,5 @@ class VendorController extends Controller
         ]);
     }
 
-    
+
 }
