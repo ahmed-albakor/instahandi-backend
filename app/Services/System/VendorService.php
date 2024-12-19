@@ -2,10 +2,10 @@
 
 namespace App\Services\System;
 
-use App\Models\Vendor;
-use App\Models\Location;
 use App\Models\Image;
+use App\Models\Location;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Models\VendorService as ModelsVendorService;
 use App\Services\Helper\FilterService;
 use App\Services\Helper\ImageService;
@@ -15,7 +15,9 @@ class VendorService
 {
     public function setupVendorProfile(array $validatedData, User $user)
     {
-        if ($user->profile_setup) return $user;
+        if ($user->profile_setup) {
+            return $user;
+        }
 
         $vendor = $this->createVendor($validatedData, $user);
 
@@ -38,18 +40,15 @@ class VendorService
         $user_id = Auth::id();
         $user = User::find($user_id);
 
-        $user->load(['vendor.services', 'images', 'location']);
+        $user->load(['vendor.services', 'vendor.reviews.clinet', 'images', 'location']);
 
         return $user;
     }
-
-
 
     public function updateProfile(array $validatedData, User $user)
     {
         if (isset($user->vendor)) {
             $this->updateVendorProfile($validatedData, $user->vendor);
-
 
             $this->updateOrCreateLocation($validatedData, $user);
 
@@ -85,7 +84,7 @@ class VendorService
             'crew_members' => $data['crew_members'] ?? null,
         ]);
 
-        $vendor->update(['code' => 'VND' . sprintf('%03d', $vendor->id)]);
+        $vendor->update(['code' => 'VND'.sprintf('%03d', $vendor->id)]);
 
         return $vendor;
     }
@@ -122,8 +121,8 @@ class VendorService
     private function handleOptionalFields(array $data, User $user)
     {
         $optionalFields = [
-            'profile_photo' => fn($value) => $this->updateProfilePhoto($value, $user),
-            'additional_images' => fn($value) => $this->storeAdditionalImages($value, $user),
+            'profile_photo' => fn ($value) => $this->updateProfilePhoto($value, $user),
+            'additional_images' => fn ($value) => $this->storeAdditionalImages($value, $user),
         ];
 
         foreach ($optionalFields as $key => $action) {
@@ -179,20 +178,17 @@ class VendorService
         }
     }
 
-
-
-
     public function index()
     {
         $query = Vendor::query()->with(['user.location', 'services']);
 
         $searchFields = ['code', 'user.first_name', 'user.last_name', 'user.email', 'user.phone'];
-        $numericFields = ['years_experience',];
+        $numericFields = ['years_experience'];
         $dateFields = ['created_at'];
         $exactMatchFields = ['user_id', 'account_type', 'has_crew'];
         $inFields = [];
 
-        $testimonials =  FilterService::applyFilters(
+        $testimonials = FilterService::applyFilters(
             $query,
             request()->all(),
             $searchFields,
@@ -205,13 +201,12 @@ class VendorService
         return $testimonials;
     }
 
-
     public function getVendorById($id)
     {
 
         $vendor = Vendor::find($id);
 
-        if (!$vendor) {
+        if (! $vendor) {
             abort(
                 response()->json([
                     'success' => false,
@@ -219,6 +214,7 @@ class VendorService
                 ], 404)
             );
         }
+
         return $vendor;
     }
 }
