@@ -40,7 +40,7 @@ class VendorService
         $user_id = Auth::id();
         $user = User::find($user_id);
 
-        $user->load(['vendor.services', 'vendor.reviews.clinet', 'images', 'location']);
+        $user->load(['vendor.services', 'vendor.reviews.client', 'images', 'location']);
 
         return $user;
     }
