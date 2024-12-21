@@ -63,7 +63,7 @@ class NotificationService
     public function markNotificationAsRead($userId, $id)
     {
         $userNotification = UserNotification::where('user_id', $userId)
-            ->where('notification_id', $id)
+            ->where('id', $id)
             ->first();
 
         if (!$userNotification) {
@@ -87,14 +87,30 @@ class NotificationService
     public function deleteUserNotification($userId, $id)
     {
         DB::transaction(function () use ($userId, $id) {
+            $userNotification = UserNotification::where('user_id', $userId)
+                ->where('id', $id)
+                ->first();
+
+            if (!$userNotification) {
+                abort(
+                    response()->json([
+                        'success' => false,
+                        'message' => 'User Notification not found.',
+                    ], 404)
+                );
+            }
+
+            $notificationId = $userNotification->notification()->id;
+
+
             UserNotification::where('user_id', $userId)
-                ->where('notification_id', $id)
+                ->where('id', $id)
                 ->delete();
 
-            $remainingNotifications = UserNotification::where('notification_id', $id)->count();
+            $remainingNotifications = UserNotification::where('notification_id', $notificationId)->count();
 
             if ($remainingNotifications === 0) {
-                Notification::where('id', $id)->delete();
+                Notification::where('id', $notificationId)->delete();
             }
         });
     }
