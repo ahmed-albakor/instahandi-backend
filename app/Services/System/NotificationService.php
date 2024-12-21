@@ -60,11 +60,20 @@ class NotificationService
         });
     }
 
-    public function markNotificationAsRead($userId, $notificationId)
+    public function markNotificationAsRead($userId, $id)
     {
         $userNotification = UserNotification::where('user_id', $userId)
-            ->where('notification_id', $notificationId)
+            ->where('notification_id', $id)
             ->first();
+
+        if (!$userNotification) {
+            abort(
+                response()->json([
+                    'success' => false,
+                    'message' => 'User Notification not found.',
+                ], 404)
+            );
+        }
 
         UserNotification::where('user_id', $userId)
             ->where('id', '<=', $userNotification->id)
