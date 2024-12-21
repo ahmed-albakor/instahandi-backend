@@ -35,4 +35,10 @@ class Notification extends Model
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
+
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'creator_id');
+    }
 }

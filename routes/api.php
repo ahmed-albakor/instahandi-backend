@@ -5,6 +5,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientPaymentController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ServiceController;
@@ -34,19 +35,27 @@ Route::prefix('public')
         Route::get('/services', [ServiceController::class, 'index']);
         Route::get('/vendors', [VendorController::class, 'index']);
         Route::get('/vendors/{id}', [VendorController::class, 'show']);
+
+
+
+        Route::middleware(['auth:sanctum'])
+            ->group(function () {
+                ########## System Reviews Start ########## 
+                Route::get('system-reviews/', [SystemReviewController::class, 'index']);
+                Route::get('system-reviews/{id}', [SystemReviewController::class, 'show']);
+                Route::post('system-reviews/', [SystemReviewController::class, 'create']);
+                Route::post('system-reviews/{id}', [SystemReviewController::class, 'update']);
+                Route::delete('system-reviews/{id}', [SystemReviewController::class, 'destroy']);
+                ########## System Reviews End ##########
+
+                Route::get('user_notifications/', [NotificationController::class, 'index']);
+                Route::post('user_notifications/{id}/mark_read', [NotificationController::class, 'markAsRead']);
+                Route::delete('user_notifications/{id}', [NotificationController::class, 'deleteUserNotification']);
+            });
     });
 
 
-Route::middleware(['auth:sanctum'])
-    ->group(function () {
-        ########## System Reviews Start ########## 
-        Route::get('system-reviews/', [SystemReviewController::class, 'index']);
-        Route::get('system-reviews/{id}', [SystemReviewController::class, 'show']);
-        Route::post('system-reviews/', [SystemReviewController::class, 'create']);
-        Route::post('system-reviews/{id}', [SystemReviewController::class, 'update']);
-        Route::delete('system-reviews/{id}', [SystemReviewController::class, 'destroy']);
-        ########## System Reviews End ##########
-    });
+
 
 
 Route::prefix('auth')

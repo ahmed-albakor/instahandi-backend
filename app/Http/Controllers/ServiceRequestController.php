@@ -9,6 +9,7 @@ use App\Http\Requests\ServiceRequest\UpdateRequest;
 use App\Http\Resources\ServiceRequestResource;
 use App\Models\Image;
 use App\Models\Proposal;
+use App\Models\ServiceRequest;
 use App\Permissions\ServiceRequestPermission;
 use App\Services\Helper\ResponseService;
 use App\Services\System\OrderService;
