@@ -265,7 +265,7 @@ class ServiceRequestController extends Controller
         if ($serviceRequest->status != 'pending') {
             return response()->json([
                 'success' => false,
-                'errors' => "You cannot place Bid a service request while it is {$serviceRequest->status}.",
+                'message' => "You cannot place Bid a service request while it is {$serviceRequest->status}.",
             ], 422);
         }
 
