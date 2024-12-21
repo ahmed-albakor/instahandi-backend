@@ -52,9 +52,10 @@ class NotificationController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Notification marked as read.',
+            'message' => 'All notifications up to this one have been marked as read.',
         ]);
     }
+
 
     public function deleteUserNotification($id): JsonResponse
     {

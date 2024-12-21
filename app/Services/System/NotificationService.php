@@ -75,11 +75,14 @@ class NotificationService
             );
         }
 
-        $userNotification->update([
-            'is_read' => true,
-            'read_at' => now(),
-        ]);
+        UserNotification::where('user_id', $userId)
+            ->where('id', '<=', $userNotification->id)
+            ->update([
+                'is_read' => true,
+                'read_at' => now(),
+            ]);
     }
+
 
     public function deleteUserNotification($userId, $notificationId)
     {
