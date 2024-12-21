@@ -129,6 +129,8 @@ Route::middleware([VendorMiddleware::class, 'auth:sanctum'])
 
         Route::get('/service-requests/{id}', [ServiceRequestController::class, 'show']);
         Route::get('/service-requests', [ServiceRequestController::class, 'index']);
+        Route::psot('proposals/{id}/place-bid', [ServiceRequestController::class, 'placeBid']);
+
         // Route::post('/service-requests/{id}/accept', [ServiceRequestController::class, 'acceptServiceRequset']);
 
 

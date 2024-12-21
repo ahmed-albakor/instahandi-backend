@@ -70,35 +70,6 @@ class ProposalController extends Controller
     }
 
 
-    public function placeBid(PlaceBidRequest $request)
-    {
-        $service_requests = ServiceRequest::find($request->service_request_id);
-
-        if ($service_requests->status != 'pending') {
-            return response()->json([
-                'success' => false,
-                'errors' => "You cannot place Bid a service request while it is {$service_requests->status}.",
-            ], 422);
-        }
-
-
-        $proposal_data = [
-            'service_request_id' => $service_requests->id,
-            'vendor_id' => $service_requests->vendor_id,
-            'message' => $service_requests->message,
-            'price' => $service_requests->price,
-            'payment_type' => $service_requests->payment_type,
-        ];
-
-        $proposal = $this->proposalService->createProposal($proposal_data);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Place Bid successfully.',
-            'data' => $proposal,
-        ]);
-    }
-
     public function update($id, UpdateProposalRequest $request)
     {
         $proposal = $this->proposalService->getProposalById($id);

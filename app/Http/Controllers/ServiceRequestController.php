@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Proposal\PlaceBidRequest;
 use App\Http\Requests\ServiceRequest\CreateRequest;
 use App\Http\Requests\ServiceRequest\HireVendorRequest;
 use App\Http\Requests\ServiceRequest\UpdateRequest;
@@ -11,6 +12,7 @@ use App\Models\Proposal;
 use App\Permissions\ServiceRequestPermission;
 use App\Services\Helper\ResponseService;
 use App\Services\System\OrderService;
+use App\Services\System\ProposalService;
 use App\Services\System\ServiceRequestService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,10 +20,12 @@ use Illuminate\Support\Facades\Validator;
 class ServiceRequestController extends Controller
 {
     protected $serviceRequestService;
+    protected $proposalService;
 
-    public function __construct(ServiceRequestService $serviceRequestService)
+    public function __construct(ServiceRequestService $serviceRequestService, ProposalService $proposalService)
     {
         $this->serviceRequestService = $serviceRequestService;
+        $this->proposalService = $proposalService;
     }
 
     public function index()
@@ -249,5 +253,39 @@ class ServiceRequestController extends Controller
             'success' => $result,
             'message' => $result ? 'The proposal was successfully rejected.' : 'The proposal failed to be rejected.',
         ], 201);
+    }
+
+
+
+
+    public function placeBid($id)
+    {
+        $serviceRequest = $this->serviceRequestService->show($id);
+
+        if ($serviceRequest->status != 'pending') {
+            return response()->json([
+                'success' => false,
+                'errors' => "You cannot place Bid a service request while it is {$serviceRequest->status}.",
+            ], 422);
+        }
+
+        // $requests_data = $request->validated();
+
+
+        $proposal_data = [
+            'service_request_id' => $serviceRequest->id,
+            // 'vendor_id' => $requests_data->vendor_id,
+            'message' => $serviceRequest->message,
+            'price' => $serviceRequest->price,
+            'payment_type' => $serviceRequest->payment_type,
+        ];
+
+        $proposal = $this->proposalService->createProposal($proposal_data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Place Bid successfully.',
+            'data' => $proposal,
+        ]);
     }
 }
