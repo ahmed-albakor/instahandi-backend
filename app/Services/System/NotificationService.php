@@ -84,27 +84,27 @@ class NotificationService
     }
 
 
-    public function deleteUserNotification($userId, $notificationId)
+    public function deleteUserNotification($userId, $id)
     {
-        DB::transaction(function () use ($userId, $notificationId) {
+        DB::transaction(function () use ($userId, $id) {
             UserNotification::where('user_id', $userId)
-                ->where('notification_id', $notificationId)
+                ->where('notification_id', $id)
                 ->delete();
 
-            $remainingNotifications = UserNotification::where('notification_id', $notificationId)->count();
+            $remainingNotifications = UserNotification::where('notification_id', $id)->count();
 
             if ($remainingNotifications === 0) {
-                Notification::where('id', $notificationId)->delete();
+                Notification::where('id', $id)->delete();
             }
         });
     }
 
 
-    public function deleteNotification($notificationId)
+    public function deleteNotification($id)
     {
-        DB::transaction(function () use ($notificationId) {
-            UserNotification::where('notification_id', $notificationId)->delete();
-            Notification::where('id', $notificationId)->delete();
+        DB::transaction(function () use ($id) {
+            UserNotification::where('notification_id', $id)->delete();
+            Notification::where('id', $id)->delete();
         });
     }
 }
