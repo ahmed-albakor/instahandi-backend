@@ -66,15 +66,6 @@ class NotificationService
             ->where('notification_id', $notificationId)
             ->first();
 
-        if (!$userNotification) {
-            abort(
-                response()->json([
-                    'success' => false,
-                    'message' => 'User Notification not found.',
-                ], 404)
-            );
-        }
-
         UserNotification::where('user_id', $userId)
             ->where('id', '<=', $userNotification->id)
             ->update([
