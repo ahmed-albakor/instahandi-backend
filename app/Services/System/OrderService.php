@@ -19,7 +19,8 @@ class OrderService
             'serviceRequest.client.user',
             'serviceRequest.service',
             'vendor.user',
-            'proposal'
+            'proposal',
+            'workLocation',
         ]);
 
         if ($user->role == 'vendor') {
