@@ -6,6 +6,7 @@ use App\Http\Requests\Notification\CreateNotificationRequest;
 use App\Http\Requests\Notification\UpdateReadStatusRequest;
 use App\Http\Resources\NotificationResource;
 use App\Http\Resources\UserNotificationResource;
+use App\Services\Helper\ResponseService;
 use App\Services\System\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,6 +29,7 @@ class NotificationController extends Controller
         return response()->json([
             'success' => true,
             'data' => UserNotificationResource::collection($notifications),
+            'meta' => ResponseService::meta($notifications)
         ]);
     }
 
