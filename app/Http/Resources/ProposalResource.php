@@ -14,6 +14,7 @@ class ProposalResource extends JsonResource
             'service_request_id' => $this->service_request_id,
             'vendor_id' => $this->vendor_id,
             'message' => $this->message,
+            'status' => $this->status,
             'price' => $this->price,
             'payment_type' => $this->payment_type,
             'estimated_hours' => $this->estimated_hours,
