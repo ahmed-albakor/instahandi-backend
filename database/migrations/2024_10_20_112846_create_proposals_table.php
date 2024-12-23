@@ -24,7 +24,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'accepted', 'rejected', 'canceled'])->default('pending');
             $table->enum('payment_type', ['flat_rate', 'hourly_rate']);
             $table->timestamps();
-            $table->softDeletes();
+            $table->softDeletes(); 
         });
 
 

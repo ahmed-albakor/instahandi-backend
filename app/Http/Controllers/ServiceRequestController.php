@@ -276,12 +276,17 @@ class ServiceRequestController extends Controller
         $proposal_data = [
             'service_request_id' => $serviceRequest->id,
             // 'vendor_id' => $requests_data->vendor_id,
-            'message' => $serviceRequest->message,
+            'message' => "I am pleased to accept your offer as presented, including the description and the price you have set.",
             'price' => $serviceRequest->price,
+            'estimated_hours' => $serviceRequest->estimated_hours,
             'payment_type' => $serviceRequest->payment_type,
         ];
 
         $proposal = $this->proposalService->createProposal($proposal_data);
+
+        $proposal->load(['vendor.user', 'vendor.services',]);
+
+
 
         return response()->json([
             'success' => true,
