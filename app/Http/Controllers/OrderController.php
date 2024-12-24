@@ -93,13 +93,16 @@ class OrderController extends Controller
 
     public function updateStatus($id, UpdateStatusRequest $request)
     {
-        $order = $this->orderService->getOrderById($id);
+        $relationships = ['serviceRequest.client.user', 'serviceRequest.service', 'workLocation', 'images', 'vendor.user', 'vendor.services', 'proposal'];
 
+        $order = $this->orderService->getOrderById($id);
         OrderPermission::update($order);
 
         $validated = $request->validated();
 
         $order = $this->orderService->updateOrderStatus($order, $validated['status']);
+
+        $order->load($relationships);
 
         return response()->json([
             'success' => true,
