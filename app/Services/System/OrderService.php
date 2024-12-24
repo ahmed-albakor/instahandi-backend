@@ -54,7 +54,7 @@ class OrderService
 
     public function getOrderById($id, $relationships = [])
     {
-        $order = Order::find($id)->first();
+        $order = Order::find($id);
 
         if (!$order) {
             abort(
