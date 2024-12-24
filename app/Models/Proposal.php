@@ -42,7 +42,7 @@ class Proposal extends Model
 
     public function serviceRequest()
     {
-        return $this->belongsTo(ServiceRequest::class, 'service_request_id');
+        return $this->belongsTo(ServiceRequest::class, 'service_request_id')->whereNull('deleted_at');;
     }
 
     public function vendor()
