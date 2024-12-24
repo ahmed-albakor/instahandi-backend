@@ -40,6 +40,8 @@ Route::prefix('public')
 
         Route::middleware(['auth:sanctum'])
             ->group(function () {
+                        Route::get('/vendor-home-data', [HomeController::class, 'getData']);
+
                 ########## System Reviews Start ########## 
                 Route::get('system-reviews/', [SystemReviewController::class, 'index']);
                 Route::get('system-reviews/{id}', [SystemReviewController::class, 'show']);
