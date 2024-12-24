@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\VendorPaymentResource;
 use App\Permissions\VendorPaymentPermission;
+use App\Services\Helper\ResponseService;
 use App\Services\Helper\StripeService;
 use App\Services\System\VendorPaymentService;
 
@@ -25,11 +26,8 @@ class VendorPaymentController extends Controller
         return response()->json([
             'success' => true,
             'data' => VendorPaymentResource::collection($payments->items()),
-            'meta' => [
-                'current_page' => $payments->currentPage(),
-                'last_page' => $payments->lastPage(),
-                'total' => $payments->total(),
-            ],
+            'meta' => ResponseService::meta($payments)
+
         ]);
     }
 
