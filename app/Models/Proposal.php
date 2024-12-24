@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class Proposal extends Model
 {
@@ -42,7 +44,7 @@ class Proposal extends Model
 
     public function serviceRequest()
     {
-        return $this->belongsTo(ServiceRequest::class, 'service_request_id')->whereNull('deleted_at');;
+        return $this->belongsTo(ServiceRequest::class, 'service_request_id');
     }
 
     public function vendor()
@@ -53,5 +55,16 @@ class Proposal extends Model
     public function order()
     {
         return $this->hasOne(Order::class);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('validServiceRequest', function (Builder $builder) {
+            $builder->whereHas('serviceRequest', function ($query) {
+                $query->whereNull('deleted_at');
+            });
+        });
     }
 }
