@@ -44,8 +44,8 @@ class HomeController extends Controller
                 $vendor = $user->vendor;
                 $Statistics = [
                     'my_wallet' => $vendor->vendorPayments()->sum('amount'),
-                    'all_requests' => $vendor->serviceRequests()->count(),
-                    'cancelled_requests' => $vendor->serviceRequests()->where('status', 'canceled')->count(),
+                    'all_requests' => $vendor->order()->count(),
+                    'cancelled_requests' => $vendor->order()->where('status', 'canceled')->count(),
                     'completed_jobs' => $vendor->orders()->where('status', 'completed')->count(),
                 ];
             }
