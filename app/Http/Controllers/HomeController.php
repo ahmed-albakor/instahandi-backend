@@ -10,6 +10,7 @@ use App\Models\Testimonial;
 use App\Models\Vendor;
 use App\Services\System\ServiceService;
 use App\Services\System\VendorService;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -31,6 +32,28 @@ class HomeController extends Controller
 
         $faqs = Faq::get();
 
+        $Statistics = [];
+
+
+
+        $isVendor = false;
+        if (Auth::check()) {
+            $user = Auth::user();
+            $isVendor = $user->role == 'vendor';
+
+            if ($isVendor) {
+                $vendor = $user->vendor;
+                $Statistics = [
+                    'my_wallet' => $vendor->vendorPayments()->sum('amount'),
+                    'all_requests' => $vendor->serviceRequests()->count(),
+                    'cancelled_requests' => $vendor->serviceRequests()->where('status', 'canceled')->count(),
+                    'completed_jobs' => $vendor->orders()->where('status', 'completed')->count(),
+                ];
+            }
+        }
+
+
+
         return response()->json(
             [
                 'success' => true,
@@ -39,6 +62,7 @@ class HomeController extends Controller
                     'vendors' => VendorResource::collection($vendors),
                     'testimonials' => $testimonials,
                     'faqs' => $faqs,
+                    'statistics' =>  $Statistics,
                 ],
             ]
         );
