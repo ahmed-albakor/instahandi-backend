@@ -10,7 +10,7 @@ class VendorPaymentService
 {
     public function getAllPayments()
     {
-        $query = VendorPayment::query()->with(['vendor.user', 'order']);
+        $query = VendorPayment::query()->with(['vendor.user', 'order', 'serviceRequest.service']);
 
         $user = Auth::user();
         if ($user->role == 'vendor') {
