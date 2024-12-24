@@ -97,6 +97,7 @@ class VendorService
             'longitude' => $data['longitude'] ?? $vendor->longitude,
             'latitude' => $data['latitude'] ?? $vendor->latitude,
             'has_crew' => $data['has_crew'] ?? $vendor->has_crew,
+            'status' => $data['status'] ?? $vendor->has_crew,
             'crew_members' => $data['crew_members'] ?? $vendor->crew_members,
         ]);
     }
