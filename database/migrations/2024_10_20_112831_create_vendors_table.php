@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('code');
             $table->foreignId('user_id')->constrained();
             $table->enum('account_type', ['Individual', 'Company']);
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->integer('years_experience');
             $table->string('longitude')->nullable();
             $table->string('latitude')->nullable();

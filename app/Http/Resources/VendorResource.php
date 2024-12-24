@@ -13,6 +13,7 @@ class VendorResource extends JsonResource
             'user_id' => $this->user_id,
             'code' => $this->code,
             'account_type' => $this->account_type,
+            'status' => $this->status,
             'years_experience' => $this->years_experience,
             'longitude' => $this->longitude,
             'latitude' => $this->latitude,
@@ -21,8 +22,8 @@ class VendorResource extends JsonResource
             'average_rating' => $this->getAverageRatingAttribute(),
             'user' => new UserResource($this->whenLoaded('user')),
             'services' =>  ServiceResource::collection($this->whenLoaded('services')),
-            'vendorServices'=> VendorServiceResource::collection($this->whenLoaded('vendorServices')),
-            'reviews'=> VendorReviewResource::collection($this->whenLoaded('reviews')),
+            'vendorServices' => VendorServiceResource::collection($this->whenLoaded('vendorServices')),
+            'reviews' => VendorReviewResource::collection($this->whenLoaded('reviews')),
         ];
     }
 }
