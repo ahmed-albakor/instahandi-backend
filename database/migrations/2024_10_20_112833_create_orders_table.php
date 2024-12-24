@@ -27,6 +27,7 @@ return new class extends Migration
             $table->enum('payment_type', ["flat_rate", "hourly_rate"]);
             $table->integer('works_hours')->default(0);
             $table->timestamp('start_date')->nullable();
+            $table->timestamp('payment_at')->nullable();
             $table->timestamp('completion_date')->nullable();
             $table->timestamps();
             $table->softDeletes();

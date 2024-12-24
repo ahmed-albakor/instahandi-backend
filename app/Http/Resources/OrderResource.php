@@ -29,6 +29,7 @@ class OrderResource extends JsonResource
             'works_hours' => $this->works_hours,
             'start_date' => $this->start_date,
             'completion_date' => $this->completion_date,
+            'payment_at' => $this->payment_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'service_request' => new ServiceRequestResource($this->whenLoaded('serviceRequest')),

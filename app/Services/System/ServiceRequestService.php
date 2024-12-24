@@ -200,6 +200,7 @@ class ServiceRequestService
             'proposal_id' => $proposal->id,
             'status' => 'pending',
             'title' => $serviceRequest->description,
+            'estimated_hours' => $serviceRequest->estimated_hours,
             'description' => $proposal->message,
             'vendor_id' => $proposal->vendor_id,
             'price' => $proposal->price,
