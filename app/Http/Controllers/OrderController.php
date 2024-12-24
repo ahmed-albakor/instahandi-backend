@@ -59,11 +59,15 @@ class OrderController extends Controller
 
     public function update($id, UpdateOrderRequest $request)
     {
-        $order = $this->orderService->getOrderById($id);
+        $relationships = ['serviceRequest.client.user', 'serviceRequest.service', 'workLocation', 'images', 'vendor.user', 'vendor.services', 'proposal'];
+
+        $order = $this->orderService->getOrderById($id, $relationships);
 
         OrderPermission::update($order);
 
         $order = $this->orderService->updateOrder($order, $request->validated());
+
+
 
         return response()->json([
             'success' => true,
