@@ -36,12 +36,11 @@ class HomeController extends Controller
 
 
 
-        $isVendor = false;
         if (Auth::check()) {
-            $user = Auth::user();
-            $isVendor = $user->role == 'vendor';
 
-            if ($isVendor) {
+            $user = Auth::user();
+
+            if ($user->role == 'vendor') {
                 $vendor = $user->vendor;
                 $Statistics = [
                     'my_wallet' => $vendor->vendorPayments()->sum('amount'),
