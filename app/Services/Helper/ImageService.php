@@ -52,7 +52,7 @@ class ImageService
             abort(
                 response()->json([
                     'success' => false,
-                    'message' =>  'يجب تقديم معرفات الصور كمصفوفة غير فارغة.',
+                    'message' => 'Image IDs must be provided as a non-empty array.',
                 ], 422),
             );
         }
@@ -63,7 +63,7 @@ class ImageService
             abort(
                 response()->json([
                     'success' => false,
-                    'message' => 'بعض الصور المطلوب حذفها غير موجودة.',
+                    'message' => 'Some of the images to be deleted do not exist.',
                 ], 422),
             );
         }
