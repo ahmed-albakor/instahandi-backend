@@ -24,9 +24,13 @@ class CreateRequest extends FormRequest
             'user.profile_photo' => 'required|image|mimes:jpeg,png,jpg,webp|max:8096',
             'user.phone' => 'required|string|max:55',
             'user.gender' => 'required|in:male,female',
+            'images' => 'nullable|array|max:3',
+            'images.*' => 'nullable|mimes:jpeg,png,jpg,webp|max:8096',
             // 'user.role' => 'required|in:vendor',
 
             // vendor data
+            'service_ids' => 'required|array|max:3',
+            'service_ids.*' => 'integer|exists:services,id',
             'account_type' => 'required|in:Individual,Company',
             'status' => 'nullable|in:active,inactive',
             'years_experience' => 'required|integer|min:0',

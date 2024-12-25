@@ -75,7 +75,16 @@ class VendorService
         $vendor = Vendor::create($validatedData);
         $vendor->update(['code' => 'VND' . sprintf('%03d', $vendor->id)]);
 
+        $this->handleOptionalFields($validatedData, $user);
+
+
         $this->updateOrCreateLocation($validatedData, $user);
+
+        $user->update(['profile_setup' => true]);
+
+        if (isset($validatedData['service_ids'])) {
+            $this->updateVendorServices($validatedData['service_ids'], $vendor);
+        }
 
         return $vendor;
     }
@@ -90,6 +99,14 @@ class VendorService
         $vendor->update($validatedData);
 
         $this->updateOrCreateLocation($validatedData, $vendor->user);
+
+        if (isset($validatedData['service_ids'])) {
+            $this->updateVendorServices($validatedData['service_ids'], $vendor);
+        }
+
+        if (request()->has('images_remove')) {
+            ImageService::removeImages(request()->input('images_remove'));
+        }
 
         return $vendor;
     }

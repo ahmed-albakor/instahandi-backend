@@ -24,8 +24,13 @@ class UpdateRequest extends FormRequest
             'user.profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:8096',
             'user.phone' => 'nullable|string|max:55',
             'user.gender' => 'nullable|in:male,female',
+            'images' => 'nullable|array|max:3',
+            'images.*' => 'nullable|mimes:jpeg,png,jpg,webp|max:8096',
+
 
             // vendor data
+            'service_ids' => 'nullable|array|max:3',
+            'service_ids.*' => 'integer|exists:services,id',
             'account_type' => 'nullable|in:Individual,Company',
             'status' => 'nullable|in:active,inactive',
             'years_experience' => 'nullable|integer|min:0',
