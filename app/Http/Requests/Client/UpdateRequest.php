@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Client;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateRequest extends FormRequest
 {
@@ -19,13 +18,7 @@ class UpdateRequest extends FormRequest
         return [
             'user.first_name' => 'nullable|string|max:255',
             'user.last_name' => 'nullable|string|max:255',
-            'user.email' => [
-                'nullable',
-                'string',
-                'email',
-                'max:100',
-                Rule::unique('users', 'email')->ignore($this->vendor->user->id ?? null),
-            ],
+            'user.email' => 'nullable|string|email|max:100|unique:users,email,' . $this->client->user->id,
             'user.phone' => 'nullable|string|max:55',
             'user.gender' => 'nullable|in:male,female',
             'additional_images' => 'nullable|array|max:3',
