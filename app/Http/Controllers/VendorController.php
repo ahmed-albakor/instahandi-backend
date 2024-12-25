@@ -53,6 +53,8 @@ class VendorController extends Controller
         $data = $request->validated();
         $vendor = $this->vendorService->create($data);
 
+        $vendor->load(['user.images', 'user.location', 'services', 'reviews.client.user']);
+
         return response()->json([
             'success' => true,
             'message' => 'Vendor created successfully.',
@@ -66,6 +68,8 @@ class VendorController extends Controller
         $data = $request->validated();
 
         $updatedVendor = $this->vendorService->update($vendor, $data);
+
+        $vendor->load(['user.images', 'user.location', 'services', 'reviews.client.user']);
 
         return response()->json([
             'success' => true,
