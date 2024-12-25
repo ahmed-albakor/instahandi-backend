@@ -68,6 +68,18 @@ class ClientService
         $client = Client::create($validatedData);
         $client->update(['code' => 'CLT' . sprintf('%03d', $client->id)]);
 
+        LocationsService::updateOrCreate(
+            ['code' => $user->code],
+            [
+                'street_address' => $validatedData['street_address'],
+                'exstra_address' => $validatedData['exstra_address'] ?? null,
+                'country' => $validatedData['country'],
+                'city' => $validatedData['city'],
+                'state' => $validatedData['state'],
+                'zip_code' => $validatedData['zip_code'],
+            ]
+        );
+
         return $client;
     }
 
@@ -79,6 +91,18 @@ class ClientService
 
         unset($validatedData['user']);
         $client->update($validatedData);
+
+        LocationsService::updateOrCreate(
+            ['code' => $client->user->code],
+            [
+                'street_address' => $validatedData['street_address'],
+                'exstra_address' => $validatedData['exstra_address'] ?? null,
+                'country' => $validatedData['country'],
+                'city' => $validatedData['city'],
+                'state' => $validatedData['state'],
+                'zip_code' => $validatedData['zip_code'],
+            ]
+        );
 
         return $client;
     }

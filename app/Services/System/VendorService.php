@@ -74,6 +74,8 @@ class VendorService
         $vendor = Vendor::create($validatedData);
         $vendor->update(['code' => 'VND' . sprintf('%03d', $vendor->id)]);
 
+        $this->updateOrCreateLocation($validatedData, $user);
+
         return $vendor;
     }
 
@@ -85,6 +87,8 @@ class VendorService
 
         unset($validatedData['user']);
         $vendor->update($validatedData);
+
+        $this->updateOrCreateLocation($validatedData, $vendor->user);
 
         return $vendor;
     }
