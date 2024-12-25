@@ -35,7 +35,9 @@ class SetupProfileRequest extends FormRequest
             'latitude' => 'nullable|string',
             'has_crew' => 'nullable|boolean',
             'has_business_insurance' => 'nullable|boolean',
-            'crew_members' => 'nullable|json',
+            'crew_members' => 'nullable|array',
+            'crew_members.*.name' => 'required|string',
+            'crew_members.*.title' => 'required|string',
             'service_ids' => 'required|array|max:3',
             'service_ids.*' => 'integer|exists:services,id',
             // Location validator
