@@ -18,6 +18,7 @@ class VendorResource extends JsonResource
             'longitude' => $this->longitude,
             'latitude' => $this->latitude,
             'has_crew' => $this->has_crew,
+            'has_business_insurance' => $this->has_business_insurance,
             'crew_members' => $this->crew_members,
             'average_rating' => $this->getAverageRatingAttribute(),
             'user' => new UserResource($this->whenLoaded('user')),

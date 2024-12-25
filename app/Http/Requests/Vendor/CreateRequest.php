@@ -37,6 +37,7 @@ class CreateRequest extends FormRequest
             'longitude' => 'nullable|string',
             'latitude' => 'nullable|string',
             'has_crew' => 'nullable|boolean',
+            'has_business_insurance' => 'nullable|boolean',
             'crew_members' => 'nullable|array',
             'crew_members.*' => 'string|max:255', // each crew member
 

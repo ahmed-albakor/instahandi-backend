@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('longitude')->nullable();
             $table->string('latitude')->nullable();
             $table->boolean('has_crew')->default(false);
+            $table->boolean('has_business_insurance')->default(false);
             $table->json('crew_members')->nullable();
             $table->timestamps();
             $table->softDeletes();

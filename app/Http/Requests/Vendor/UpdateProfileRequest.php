@@ -42,6 +42,7 @@ class UpdateProfileRequest extends FormRequest
             'longitude' => 'nullable|numeric',
             'latitude' => 'nullable|numeric',
             'has_crew' => 'nullable|boolean',
+            'has_business_insurance' => 'nullable|boolean',
             'crew_members' => 'nullable|integer|min:1',
             'service_ids' => 'nullable|array',
             'service_ids.*' => 'nullable|integer|exists:services,id',
