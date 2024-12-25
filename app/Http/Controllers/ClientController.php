@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Client\CreateRequest;
+use App\Http\Requests\Client\UpdateProfileRequest;
 use App\Http\Requests\Client\UpdateRequest;
 use App\Http\Resources\ClientResource;
 use App\Services\System\ClientService;
@@ -90,7 +91,7 @@ class ClientController extends Controller
     }
 
     // الوظائف القديمة
-    public function setupProfile(Request $request): JsonResponse
+    public function setupProfile(CreateRequest $request): JsonResponse
     {
         $user = Auth::user();
 
@@ -120,7 +121,7 @@ class ClientController extends Controller
         ]);
     }
 
-    public function updateProfile(Request $request): JsonResponse
+    public function updateProfile(UpdateProfileRequest $request): JsonResponse
     {
         $user = Auth::user();
         $validatedData = $request->validated();

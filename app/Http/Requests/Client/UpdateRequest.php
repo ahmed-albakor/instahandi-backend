@@ -21,13 +21,7 @@ class UpdateRequest extends FormRequest
         return [
             'user.first_name' => 'nullable|string|max:255',
             'user.last_name' => 'nullable|string|max:255',
-            'user.email' => [
-                'nullable',
-                'string',
-                'email',
-                'max:100',
-                Rule::unique('users', 'email')->ignore($this->user()->id),
-            ],
+            'email' => 'nullable|email|max:255|unique:users,email',
             'user.phone' => 'nullable|string|max:55',
             'user.gender' => 'nullable|in:male,female',
             'additional_images' => 'nullable|array|max:3',
