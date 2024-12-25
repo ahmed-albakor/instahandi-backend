@@ -26,7 +26,7 @@ class UpdateRequest extends FormRequest
                 'string',
                 'email',
                 'max:100',
-                Rule::unique('users', 'email')->ignore(Auth::id()),
+                Rule::unique('users', 'email')->ignore($this->user()->id),
             ],
             'user.phone' => 'nullable|string|max:55',
             'user.gender' => 'nullable|in:male,female',
