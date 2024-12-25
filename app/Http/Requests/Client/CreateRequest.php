@@ -23,6 +23,8 @@ class CreateRequest extends FormRequest
             'user.profile_photo' => 'required|image|mimes:jpeg,png,jpg,webp|max:8096',
             'user.phone' => 'required|string|max:55',
             'user.gender' => 'required|in:male,female',
+            'additional_images' => 'nullable|array|max:3',
+            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,webp|max:8096',
 
             // location data
             'street_address' => 'required|string|max:255',

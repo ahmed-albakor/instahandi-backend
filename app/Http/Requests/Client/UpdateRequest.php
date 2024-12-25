@@ -21,6 +21,8 @@ class UpdateRequest extends FormRequest
             'user.email' => 'nullable|string|email|max:100|unique:users,email,' . $this->route('id'),
             'user.phone' => 'nullable|string|max:55',
             'user.gender' => 'nullable|in:male,female',
+            'additional_images' => 'nullable|array|max:3',
+            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,webp|max:8096',
         ];
     }
 }

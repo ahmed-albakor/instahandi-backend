@@ -7,7 +7,6 @@ use App\Models\Image;
 use App\Models\User;
 use App\Services\Helper\FilterService;
 use App\Services\Helper\ImageService;
-use App\Services\System\UserService;
 use Illuminate\Support\Facades\Auth;
 
 class ClientService
@@ -64,7 +63,7 @@ class ClientService
 
         $validatedData['user_id'] = $user->id;
         unset($validatedData['user']);
-        
+
         $validatedData['code'] = rand(1111, 5555);
 
         $client = Client::create($validatedData);
@@ -81,6 +80,21 @@ class ClientService
                 'zip_code' => $validatedData['zip_code'],
             ]
         );
+
+        if (isset($validatedData['profile_photo'])) {
+            $profilePhotoPath = ImageService::storeImage($validatedData['profile_photo'], 'profile_photos');
+            $user->update(['profile_photo' => $profilePhotoPath]);
+        }
+
+        if (isset($validatedData['additional_images'])) {
+            foreach ($validatedData['additional_images'] as $image) {
+                $imagePath = ImageService::storeImage($image, 'client_images');
+                Image::create([
+                    'code' => $user->code,
+                    'path' => $imagePath,
+                ]);
+            }
+        }
 
         return $client;
     }
@@ -105,6 +119,29 @@ class ClientService
                 'zip_code' => $validatedData['zip_code'],
             ]
         );
+
+        $user = $client->user;
+
+        if (isset($validatedData['profile_photo']) && $validatedData['profile_photo']->isValid()) {
+            $profilePhotoPath = ImageService::storeImage($validatedData['profile_photo'], 'profile_photos');
+            $user->update(['profile_photo' => $profilePhotoPath]);
+        }
+
+        if (isset($validatedData['additional_images'])) {
+            foreach ($validatedData['additional_images'] as $image) {
+                if ($image->isValid()) {
+                    $imagePath = ImageService::storeImage($image, 'client_images');
+                    Image::create([
+                        'code' => $user->code,
+                        'path' => $imagePath,
+                    ]);
+                }
+            }
+        }
+
+        if (request()->has('images_remove')) {
+            ImageService::removeImages(request()->input('images_remove'));
+        }
 
         return $client;
     }
