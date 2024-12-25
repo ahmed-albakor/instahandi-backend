@@ -58,6 +58,7 @@ class ClientService
     public function create(array $validatedData, User $user = null)
     {
         if (!$user) {
+            $validatedData['user']['role'] = 'client';
             $user = $this->userService->create($validatedData['user']);
         }
 

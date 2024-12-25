@@ -64,6 +64,7 @@ class VendorService
     public function create(array $validatedData, User $user = null)
     {
         if (!$user) {
+            $validatedData['user']['role'] = 'vendor';
             $user = $this->userService->create($validatedData['user']);
         }
 

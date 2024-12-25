@@ -24,7 +24,7 @@ class CreateRequest extends FormRequest
             'user.profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:8096',
             'user.phone' => 'nullable|string|max:55',
             'user.gender' => 'required|in:male,female',
-            'user.role' => 'required|in:vendor',
+            // 'user.role' => 'required|in:vendor',
 
             // vendor data
             'account_type' => 'required|in:Individual,Company',
