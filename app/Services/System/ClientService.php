@@ -4,14 +4,91 @@ namespace App\Services\System;
 
 use App\Models\Client;
 use App\Models\Image;
-use App\Models\Location;
 use App\Models\User;
+use App\Services\Helper\FilterService;
 use App\Services\Helper\ImageService;
+use App\Services\System\UserService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class ClientService
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
+    // الوظائف الأساسية
+    public function index($filters)
+    {
+        $query = Client::query()->with(['user']);
+
+        $searchFields = ['user.first_name', 'user.email', 'user.phone'];
+        $numericFields = ['id'];
+        $dateFields = ['created_at'];
+        $exactMatchFields = ['user_id'];
+        $inFields = [];
+
+        return FilterService::applyFilters(
+            $query,
+            $filters,
+            $searchFields,
+            $numericFields,
+            $dateFields,
+            $exactMatchFields,
+            $inFields
+        );
+    }
+
+    public function show($id)
+    {
+        $client = Client::with(['user'])->find($id);
+
+        if (!$client) {
+            abort(response()->json([
+                'success' => false,
+                'message' => 'Client not found.',
+            ], 404));
+        }
+
+        return $client;
+    }
+
+    public function create(array $validatedData, User $user = null)
+    {
+        if (!$user) {
+            $user = $this->userService->create($validatedData['user']);
+        }
+
+        $validatedData['user_id'] = $user->id;
+        unset($validatedData['user']);
+
+        $client = Client::create($validatedData);
+        $client->update(['code' => 'CLT' . sprintf('%03d', $client->id)]);
+
+        return $client;
+    }
+
+    public function update(Client $client, array $validatedData)
+    {
+        if (isset($validatedData['user'])) {
+            $this->userService->update($client->user, $validatedData['user']);
+        }
+
+        unset($validatedData['user']);
+        $client->update($validatedData);
+
+        return $client;
+    }
+
+    public function destroy(Client $client)
+    {
+        $client->delete();
+        return $client->user->delete();
+    }
+
+    // الوظائف القديمة
     public function setupClientProfile($validatedData, $user)
     {
         $client = Client::create([
@@ -61,7 +138,6 @@ class ClientService
         return $user;
     }
 
-
     public function profileData()
     {
         $user_id = Auth::id();
@@ -71,7 +147,6 @@ class ClientService
 
         return $user;
     }
-
 
     public function updateProfile($validatedData, $user)
     {
@@ -92,7 +167,6 @@ class ClientService
             $user->update(['profile_photo' => $profilePhotoPath]);
         }
 
-
         if (isset($validatedData['additional_images'])) {
             foreach ($validatedData['additional_images'] as $image) {
                 if ($image->isValid()) {
@@ -104,7 +178,6 @@ class ClientService
                 }
             }
         }
-
 
         if (request()->has('images_remove')) {
             ImageService::removeImages(request()->input('images_remove'));

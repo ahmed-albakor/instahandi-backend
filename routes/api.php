@@ -40,7 +40,7 @@ Route::prefix('public')
 
         Route::middleware(['auth:sanctum'])
             ->group(function () {
-                        Route::get('/vendor-home-data', [HomeController::class, 'getData']);
+                Route::get('/vendor-home-data', [HomeController::class, 'getData']);
 
                 ########## System Reviews Start ########## 
                 Route::get('system-reviews/', [SystemReviewController::class, 'index']);
@@ -235,6 +235,22 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
         Route::delete('vendor-reviews/{id}', [VendorReviewController::class, 'destroy']);
         ########## Vendor Reviews End ########## 
 
+        ########## Vendor Start ##########
+        Route::get('/vendors',  [VendorController::class, 'index']);
+        Route::get('/vendors/{id}',  [VendorController::class, 'show']);
+        Route::post('/vendors',  [VendorController::class, 'store']);
+        Route::post('/vendors/{id}',  [VendorController::class, 'update']);
+        Route::delete('/vendors/{id}',  [VendorController::class, 'destroy']);
+        ########## Vendor End ##########
+
+
+        ########## Client Start ##########
+        Route::get('/clients',  [ClientController::class, 'index']);
+        Route::get('/clients/{id}',  [ClientController::class, 'show']);
+        Route::post('/clients',  [ClientController::class, 'store']);
+        Route::post('/clients/{id}',  [ClientController::class, 'update']);
+        Route::delete('/clients/{id}',  [ClientController::class, 'destroy']);
+        ########## Client End ##########
 
     });
 

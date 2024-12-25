@@ -9,6 +9,7 @@ use App\Models\Service;
 use App\Models\Testimonial;
 use App\Models\Vendor;
 use App\Services\System\ServiceService;
+use App\Services\System\UserService;
 use App\Services\System\VendorService;
 use Illuminate\Support\Facades\Auth;
 
@@ -67,9 +68,9 @@ class HomeController extends Controller
         );
     }
 
-    public function search()
+    public function search(UserService $userService)
     {
-        $vendorService = new VendorService();
+        $vendorService = new VendorService($userService);
         $serviceService = new ServiceService();
 
         $vendors = $vendorService->index();

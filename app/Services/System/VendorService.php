@@ -13,6 +13,87 @@ use Illuminate\Support\Facades\Auth;
 
 class VendorService
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
+    public function index()
+    {
+        $query = Vendor::query()->with(['user.location', 'services']);
+
+        $searchFields = ['code', 'user.first_name', 'user.last_name', 'user.email', 'user.phone'];
+        $numericFields = ['years_experience'];
+        $dateFields = ['created_at'];
+        $exactMatchFields = ['user_id', 'account_type', 'has_crew'];
+        $inFields = [];
+
+        $testimonials = FilterService::applyFilters(
+            $query,
+            request()->all(),
+            $searchFields,
+            $numericFields,
+            $dateFields,
+            $exactMatchFields,
+            $inFields
+        );
+
+        return $testimonials;
+    }
+
+    public function getVendorById($id)
+    {
+
+        $vendor = Vendor::find($id);
+
+        if (! $vendor) {
+            abort(
+                response()->json([
+                    'success' => false,
+                    'message' => 'Vendor not found.',
+                ], 404)
+            );
+        }
+
+        return $vendor;
+    }
+
+
+    public function create(array $validatedData, User $user = null)
+    {
+        if (!$user) {
+            $user = $this->userService->create($validatedData['user']);
+        }
+
+        $validatedData['user_id'] = $user->id;
+        unset($validatedData['user']);
+
+        $vendor = Vendor::create($validatedData);
+        $vendor->update(['code' => 'VND' . sprintf('%03d', $vendor->id)]);
+
+        return $vendor;
+    }
+
+    public function update(Vendor $vendor, array $validatedData)
+    {
+        if (isset($validatedData['user'])) {
+            $this->userService->update($vendor->user, $validatedData['user']);
+        }
+
+        unset($validatedData['user']);
+        $vendor->update($validatedData);
+
+        return $vendor;
+    }
+
+    public function destroy(Vendor $vendor)
+    {
+        $vendor->delete();
+        return $vendor->user->delete();
+    }
+
     public function setupVendorProfile(array $validatedData, User $user)
     {
         if ($user->profile_setup) {
@@ -84,7 +165,7 @@ class VendorService
             'crew_members' => $data['crew_members'] ?? null,
         ]);
 
-        $vendor->update(['code' => 'VND'.sprintf('%03d', $vendor->id)]);
+        $vendor->update(['code' => 'VND' . sprintf('%03d', $vendor->id)]);
 
         return $vendor;
     }
@@ -122,8 +203,8 @@ class VendorService
     private function handleOptionalFields(array $data, User $user)
     {
         $optionalFields = [
-            'profile_photo' => fn ($value) => $this->updateProfilePhoto($value, $user),
-            'additional_images' => fn ($value) => $this->storeAdditionalImages($value, $user),
+            'profile_photo' => fn($value) => $this->updateProfilePhoto($value, $user),
+            'additional_images' => fn($value) => $this->storeAdditionalImages($value, $user),
         ];
 
         foreach ($optionalFields as $key => $action) {
@@ -177,45 +258,5 @@ class VendorService
                 'service_id' => $serviceId,
             ]);
         }
-    }
-
-    public function index()
-    {
-        $query = Vendor::query()->with(['user.location', 'services']);
-
-        $searchFields = ['code', 'user.first_name', 'user.last_name', 'user.email', 'user.phone'];
-        $numericFields = ['years_experience'];
-        $dateFields = ['created_at'];
-        $exactMatchFields = ['user_id', 'account_type', 'has_crew'];
-        $inFields = [];
-
-        $testimonials = FilterService::applyFilters(
-            $query,
-            request()->all(),
-            $searchFields,
-            $numericFields,
-            $dateFields,
-            $exactMatchFields,
-            $inFields
-        );
-
-        return $testimonials;
-    }
-
-    public function getVendorById($id)
-    {
-
-        $vendor = Vendor::find($id);
-
-        if (! $vendor) {
-            abort(
-                response()->json([
-                    'success' => false,
-                    'message' => 'Vendor not found.',
-                ], 404)
-            );
-        }
-
-        return $vendor;
     }
 }

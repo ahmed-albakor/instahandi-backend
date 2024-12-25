@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Client\SetupProfileRequest;
-use App\Http\Requests\Client\UpdateProfileRequest;
+use App\Http\Requests\Client\CreateRequest;
+use App\Http\Requests\Client\UpdateRequest;
+use App\Http\Resources\ClientResource;
 use App\Services\System\ClientService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 class ClientController extends Controller
 {
@@ -18,7 +19,72 @@ class ClientController extends Controller
         $this->clientService = $clientService;
     }
 
-    public function setupProfile(SetupProfileRequest $request)
+    // الوظائف الأساسية
+    public function index(Request $request): JsonResponse
+    {
+        $filters = $request->all();
+        $clients = $this->clientService->index($filters);
+
+        return response()->json([
+            'success' => true,
+            'data' => ClientResource::collection($clients->items()),
+            'meta' => [
+                'total' => $clients->total(),
+                'per_page' => $clients->perPage(),
+                'current_page' => $clients->currentPage(),
+            ],
+        ]);
+    }
+
+    public function show($id): JsonResponse
+    {
+        $client = $this->clientService->show($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => new ClientResource($client),
+        ]);
+    }
+
+    public function store(CreateRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $client = $this->clientService->create($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Client created successfully.',
+            'data' => new ClientResource($client),
+        ], 201);
+    }
+
+    public function update(UpdateRequest $request, $id): JsonResponse
+    {
+        $client = $this->clientService->show($id);
+        $data = $request->validated();
+
+        $updatedClient = $this->clientService->update($client, $data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Client updated successfully.',
+            'data' => new ClientResource($updatedClient),
+        ]);
+    }
+
+    public function destroy($id): JsonResponse
+    {
+        $client = $this->clientService->show($id);
+        $this->clientService->destroy($client);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Client deleted successfully.',
+        ]);
+    }
+
+    // الوظائف القديمة
+    public function setupProfile(Request $request): JsonResponse
     {
         $user = Auth::user();
 
@@ -30,7 +96,6 @@ class ClientController extends Controller
         }
 
         $validatedData = $request->validated();
-
         $this->clientService->setupClientProfile($validatedData, $user);
 
         return response()->json([
@@ -39,30 +104,27 @@ class ClientController extends Controller
         ]);
     }
 
-
-    public function getData()
+    public function getData(): JsonResponse
     {
         $user = $this->clientService->profileData();
 
         return response()->json([
             'success' => true,
-            'data' => $user
-        ], 200);
+            'data' => $user,
+        ]);
     }
 
-
-    public function updateProfile(UpdateProfileRequest $request)
+    public function updateProfile(Request $request): JsonResponse
     {
+        $user = Auth::user();
         $validatedData = $request->validated();
 
-        $user = Auth::user();
         $updatedUser = $this->clientService->updateProfile($validatedData, $user);
-
 
         return response()->json([
             'success' => true,
             'message' => 'Profile updated successfully!',
-            'data' => $updatedUser
+            'data' => $updatedUser,
         ]);
     }
 }

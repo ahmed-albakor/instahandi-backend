@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Vendor\CreateRequest;
 use App\Http\Requests\Vendor\SetupProfileRequest;
 use App\Http\Requests\Vendor\UpdateProfileRequest;
+use App\Http\Requests\Vendor\UpdateRequest;
 use App\Http\Resources\VendorResource;
 use App\Http\Resources\UserResource;
 use App\Services\Helper\ResponseService;
 use App\Services\System\VendorService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -20,6 +23,68 @@ class VendorController extends Controller
     {
         $this->vendorService = $vendorService;
     }
+    public function index()
+    {
+        $testimonials = $this->vendorService->index();
+
+        return response()->json([
+            'success' => true,
+            'data' => VendorResource::collection($testimonials->items()),
+            'meta' => ResponseService::meta($testimonials),
+        ]);
+    }
+
+
+    public function show($id)
+    {
+
+        $vendor = $this->vendorService->getVendorById($id);
+
+        $vendor->load(['user.images', 'user.location', 'services', 'reviews.client.user']);
+
+        return response()->json([
+            'success' => true,
+            'data' => new VendorResource($vendor),
+        ]);
+    }
+
+    public function store(CreateRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $vendor = $this->vendorService->create($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor created successfully.',
+            'data' => new VendorResource($vendor),
+        ], 201);
+    }
+
+    public function update(UpdateRequest $request, $id): JsonResponse
+    {
+        $vendor = $this->vendorService->getVendorById($id);
+        $data = $request->validated();
+
+        $updatedVendor = $this->vendorService->update($vendor, $data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor updated successfully.',
+            'data' => new VendorResource($updatedVendor),
+        ]);
+    }
+
+    public function destroy($id): JsonResponse
+    {
+        $vendor = $this->vendorService->getVendorById($id);
+        $this->vendorService->destroy($vendor);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor deleted successfully.',
+        ]);
+    }
+
 
     public function setupProfile(SetupProfileRequest $request)
     {
@@ -68,32 +133,4 @@ class VendorController extends Controller
             'data' => $updatedUser,
         ]);
     }
-
-
-    public function index()
-    {
-        $testimonials = $this->vendorService->index();
-
-        return response()->json([
-            'success' => true,
-            'data' => VendorResource::collection($testimonials->items()),
-            'meta' => ResponseService::meta($testimonials),
-        ]);
-    }
-
-
-    public function show($id)
-    {
-
-        $vendor = $this->vendorService->getVendorById($id);
-
-        $vendor->load(['user.images', 'user.location', 'services', 'reviews.client.user']);
-
-        return response()->json([
-            'success' => true,
-            'data' => new VendorResource($vendor),
-        ]);
-    }
-
-
 }
