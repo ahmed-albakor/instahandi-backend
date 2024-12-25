@@ -70,6 +70,7 @@ class VendorService
 
         $validatedData['user_id'] = $user->id;
         unset($validatedData['user']);
+        $validatedData['code'] = rand(1111, 5555);
 
         $vendor = Vendor::create($validatedData);
         $vendor->update(['code' => 'VND' . sprintf('%03d', $vendor->id)]);

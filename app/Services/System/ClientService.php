@@ -64,6 +64,8 @@ class ClientService
 
         $validatedData['user_id'] = $user->id;
         unset($validatedData['user']);
+        
+        $validatedData['code'] = rand(1111, 5555);
 
         $client = Client::create($validatedData);
         $client->update(['code' => 'CLT' . sprintf('%03d', $client->id)]);
