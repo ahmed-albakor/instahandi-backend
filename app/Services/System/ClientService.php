@@ -74,7 +74,7 @@ class ClientService
             ['code' => $user->code],
             [
                 'street_address' => $validatedData['street_address'],
-                'exstra_address' => $validatedData['exstra_address'] ?? null,
+                'exstra_address' => $validatedData['exstra_address'] ?? '',
                 'country' => $validatedData['country'],
                 'city' => $validatedData['city'],
                 'state' => $validatedData['state'],
@@ -98,7 +98,7 @@ class ClientService
             ['code' => $client->user->code],
             [
                 'street_address' => $validatedData['street_address'],
-                'exstra_address' => $validatedData['exstra_address'] ?? null,
+                'exstra_address' => $validatedData['exstra_address'] ?? '',
                 'country' => $validatedData['country'],
                 'city' => $validatedData['city'],
                 'state' => $validatedData['state'],
