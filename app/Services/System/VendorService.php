@@ -195,12 +195,12 @@ class VendorService
         LocationsService::updateOrCreate(
             ['code' => $user->code],
             [
-                'street_address' => $data['street_address'] ?? $user->location->street_address,
-                'exstra_address' => $data['exstra_address'] ?? $user->location->exstra_address,
-                'country' => $data['country'] ?? $user->location->country,
-                'city' => $data['city'] ?? $user->location->city,
-                'state' => $data['state'] ?? $user->location->state,
-                'zip_code' => $data['zip_code'] ?? $user->location->zip_code,
+                'street_address' => $data['street_address'] ?? $user->location->street_address ?? null,
+                'exstra_address' => $data['exstra_address'] ?? $user->location->exstra_address ?? null,
+                'country' => $data['country'] ?? $user->location->country ?? null,
+                'city' => $data['city'] ?? $user->location->city ?? null,
+                'state' => $data['state'] ?? $user->location->state ?? null,
+                'zip_code' => $data['zip_code'] ?? $user->location->zip_code ?? null,
             ]
         );
     }
