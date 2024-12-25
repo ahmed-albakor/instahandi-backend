@@ -40,6 +40,8 @@ class ClientController extends Controller
     {
         $client = $this->clientService->show($id);
 
+        $client->load(['user.images', 'user.location']);
+
         return response()->json([
             'success' => true,
             'data' => new ClientResource($client),
@@ -50,6 +52,8 @@ class ClientController extends Controller
     {
         $data = $request->validated();
         $client = $this->clientService->create($data);
+
+        $client->load(['user.images', 'user.location']);
 
         return response()->json([
             'success' => true,
@@ -64,6 +68,8 @@ class ClientController extends Controller
         $data = $request->validated();
 
         $updatedClient = $this->clientService->update($client, $data);
+
+        $updatedClient->load(['user.images', 'user.location']);
 
         return response()->json([
             'success' => true,

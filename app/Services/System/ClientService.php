@@ -42,7 +42,7 @@ class ClientService
 
     public function show($id)
     {
-        $client = Client::with(['user'])->find($id);
+        $client = Client::find($id);
 
         if (!$client) {
             abort(response()->json([
@@ -69,17 +69,8 @@ class ClientService
         $client = Client::create($validatedData);
         $client->update(['code' => 'CLT' . sprintf('%03d', $client->id)]);
 
-        LocationsService::updateOrCreate(
-            ['code' => $user->code],
-            [
-                'street_address' => $validatedData['street_address'],
-                'exstra_address' => $validatedData['exstra_address'] ?? '',
-                'country' => $validatedData['country'],
-                'city' => $validatedData['city'],
-                'state' => $validatedData['state'],
-                'zip_code' => $validatedData['zip_code'],
-            ]
-        );
+        $this->updateOrCreateLocation($validatedData, $user);
+
 
         if (isset($validatedData['profile_photo'])) {
             $profilePhotoPath = ImageService::storeImage($validatedData['profile_photo'], 'profile_photos');
@@ -108,17 +99,7 @@ class ClientService
         unset($validatedData['user']);
         $client->update($validatedData);
 
-        LocationsService::updateOrCreate(
-            ['code' => $client->user->code],
-            [
-                'street_address' => $validatedData['street_address'],
-                'exstra_address' => $validatedData['exstra_address'] ?? '',
-                'country' => $validatedData['country'],
-                'city' => $validatedData['city'],
-                'state' => $validatedData['state'],
-                'zip_code' => $validatedData['zip_code'],
-            ]
-        );
+        $this->updateOrCreateLocation($validatedData, $client->user);
 
         $user = $client->user;
 
@@ -144,6 +125,22 @@ class ClientService
         }
 
         return $client;
+    }
+
+
+    private function updateOrCreateLocation(array $data, User $user)
+    {
+        LocationsService::updateOrCreate(
+            ['code' => $user->code],
+            [
+                'street_address' => $data['street_address'] ?? $user->location->street_address ?? null,
+                'exstra_address' => $data['exstra_address'] ?? $user->location->exstra_address ?? null,
+                'country' => $data['country'] ?? $user->location->country ?? null,
+                'city' => $data['city'] ?? $user->location->city ?? null,
+                'state' => $data['state'] ?? $user->location->state ?? null,
+                'zip_code' => $data['zip_code'] ?? $user->location->zip_code ?? null,
+            ]
+        );
     }
 
     public function destroy(Client $client)
