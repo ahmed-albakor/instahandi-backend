@@ -12,6 +12,7 @@ use App\Services\Helper\FirebaseService;
 use App\Services\System\AuthService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
@@ -27,7 +28,6 @@ class AuthController extends Controller
     {
         $loginUserData = $request->validated();
     
-        // تسجيل الدخول
         $user = $this->authService->login($loginUserData);
     
         if (!$user) {
@@ -38,14 +38,11 @@ class AuthController extends Controller
             ], 401);
         }
     
-        // إنشاء التوكن
         $token = $user->createToken($user->first_name . '-AuthToken')->plainTextToken;
     
-        // التعامل مع device_token إذا كان موجودًا
         if ($request->has('device_token')) {
             $deviceToken = $request->device_token;
     
-            // حفظ التوكن الأخير في قاعدة البيانات
             $latestToken = $user->tokens()->latest()->first();
             if ($latestToken) {
                 $latestToken->update([
@@ -53,7 +50,6 @@ class AuthController extends Controller
                 ]);
             }
     
-            // الاشتراك في التوبيكات
             $topics = [
                 'user-' . $user->id,
                 'role-' . $user->role,
@@ -64,8 +60,7 @@ class AuthController extends Controller
                 $subscriptionResult = FirebaseService::subscribeToTopic($deviceToken, $topic);
     
                 if (!$subscriptionResult['success']) {
-                    // تسجيل الخطأ إذا فشل الاشتراك
-                    \Log::error('Failed to subscribe to topic', [
+                    Log::error('Failed to subscribe to topic', [
                         'topic' => $topic,
                         'device_token' => $deviceToken,
                         'error' => $subscriptionResult['error'] ?? 'Unknown error',
@@ -74,7 +69,6 @@ class AuthController extends Controller
             }
         }
     
-        // الاستجابة النهائية
         return response()->json([
             'success' => true,
             'access_token' => $token,

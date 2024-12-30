@@ -78,7 +78,6 @@ class ClientPaymentController extends Controller
         try {
             ClientPaymentPermission::create();
 
-
             $user = Auth::user();
 
 
@@ -128,12 +127,13 @@ class ClientPaymentController extends Controller
 
 
 
-    public function confirmPayment(Request $request)
+    public function confirmPayment($id)
     {
-        $paymentId = request()->payment_id;
+        $paymentId = $id;
 
         try {
             $payment = $this->clientPaymentService->getPaymentById($paymentId);
+            
             $payment_data = json_decode($payment->payment_data);
 
             $paymentIntent = $this->stripeService->retrievePaymentIntent($payment_data->id);

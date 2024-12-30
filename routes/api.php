@@ -121,8 +121,8 @@ Route::middleware([ClientMiddleware::class, 'auth:sanctum'])
 
         Route::get('payments/', [ClientPaymentController::class, 'index']);
         Route::get('payments/{id}', [ClientPaymentController::class, 'show']);
-        // Route::post('payments/', [ClientPaymentController::class, 'createPaymentIntent']);
-        // Route::post('payments/confirm', [ClientPaymentController::class, 'confirmPayment']);
+        Route::post('payments/', [ClientPaymentController::class, 'createPaymentIntent']);
+        Route::post('payments/{id}/confirm', [ClientPaymentController::class, 'confirmPayment']);
 
 
         Route::get('orders/{id}', [OrderController::class, 'show']);
