@@ -26,9 +26,10 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         $loginUserData = $request->validated();
-
+    
+        // تسجيل الدخول
         $user = $this->authService->login($loginUserData);
-
+    
         if (!$user) {
             return response()->json([
                 'success' => false,
@@ -36,24 +37,43 @@ class AuthController extends Controller
                 'message' => 'Invalid Credentials',
             ], 401);
         }
-
+    
+        // إنشاء التوكن
         $token = $user->createToken($user->first_name . '-AuthToken')->plainTextToken;
-
+    
+        // التعامل مع device_token إذا كان موجودًا
         if ($request->has('device_token')) {
+            $deviceToken = $request->device_token;
+    
+            // حفظ التوكن الأخير في قاعدة البيانات
             $latestToken = $user->tokens()->latest()->first();
             if ($latestToken) {
                 $latestToken->update([
-                    'device_token' => $request->device_token,
+                    'device_token' => $deviceToken,
                 ]);
             }
-
-            FirebaseService::subscribeToTopic($request->device_token, 'user-' . $user->id);
-            FirebaseService::subscribeToTopic($request->device_token, 'role-' . $user->role);
-            FirebaseService::subscribeToTopic($request->device_token, 'all-users');
+    
+            // الاشتراك في التوبيكات
+            $topics = [
+                'user-' . $user->id,
+                'role-' . $user->role,
+                'all-users',
+            ];
+    
+            foreach ($topics as $topic) {
+                $subscriptionResult = FirebaseService::subscribeToTopic($deviceToken, $topic);
+    
+                if (!$subscriptionResult['success']) {
+                    // تسجيل الخطأ إذا فشل الاشتراك
+                    \Log::error('Failed to subscribe to topic', [
+                        'topic' => $topic,
+                        'device_token' => $deviceToken,
+                        'error' => $subscriptionResult['error'] ?? 'Unknown error',
+                    ]);
+                }
+            }
         }
-
-
-
+    
         // الاستجابة النهائية
         return response()->json([
             'success' => true,
@@ -61,6 +81,7 @@ class AuthController extends Controller
             'user' => $user,
         ]);
     }
+س    
 
 
     public function register(RegisterRequest $request)
