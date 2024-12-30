@@ -39,4 +39,8 @@ class VendorReview extends Model
     {
         return $this->belongsTo(Client::class);
     }
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
 }
