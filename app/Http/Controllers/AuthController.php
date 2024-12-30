@@ -81,7 +81,6 @@ class AuthController extends Controller
             'user' => $user,
         ]);
     }
-س    
 
 
     public function register(RegisterRequest $request)
