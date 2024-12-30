@@ -27,6 +27,7 @@ class LoginRequest extends FormRequest
             'email' => 'required|string|email',
             'password' => 'required|min:8',
             'role' => 'required|in:admin,vendor,client',
+            'device_token' => 'nullable|string',
         ];
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\RestPasswordRequest;
 use App\Http\Requests\Auth\VerifyCodeRequest;
 use App\Models\User;
+use App\Services\Helper\FirebaseService;
 use App\Services\System\AuthService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -38,12 +39,29 @@ class AuthController extends Controller
 
         $token = $user->createToken($user->first_name . '-AuthToken')->plainTextToken;
 
+        if ($request->has('device_token')) {
+            $latestToken = $user->tokens()->latest()->first();
+            if ($latestToken) {
+                $latestToken->update([
+                    'device_token' => $request->device_token,
+                ]);
+            }
+
+            FirebaseService::subscribeToTopic($request->device_token, 'user-' . $user->id);
+            FirebaseService::subscribeToTopic($request->device_token, 'role-' . $user->role);
+            FirebaseService::subscribeToTopic($request->device_token, 'all-users');
+        }
+
+
+
+        // الاستجابة النهائية
         return response()->json([
             'success' => true,
             'access_token' => $token,
             'user' => $user,
         ]);
     }
+
 
     public function register(RegisterRequest $request)
     {
@@ -161,7 +179,25 @@ class AuthController extends Controller
     {
         $token = request()->bearerToken();
 
-        $this->authService->logout(PersonalAccessToken::findToken($token));
+        $personalAccessToken = PersonalAccessToken::findToken($token);
+
+
+        if ($personalAccessToken) {
+
+            $deviceToken = $personalAccessToken->device_token;
+
+            if ($deviceToken) {
+                $user = Auth::user();
+                FirebaseService::removeTopicFromToken($deviceToken, $user->id);
+                FirebaseService::removeTopicFromToken($deviceToken, $user->role);
+                FirebaseService::removeTopicFromToken($deviceToken, 'all-users');
+            }
+
+            // $personalAccessToken->delete();
+        }
+
+
+        $this->authService->logout($personalAccessToken);
 
         return response()->json([
             'success' => true,

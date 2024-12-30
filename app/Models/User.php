@@ -155,4 +155,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Image::class, 'code', 'code');
     }
+
+    public function tokens()
+    {
+        return $this->morphMany(PersonalAccessToken::class, 'tokenable');
+    }
 }
