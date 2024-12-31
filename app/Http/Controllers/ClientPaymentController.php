@@ -87,7 +87,7 @@ class ClientPaymentController extends Controller
 
             $customerId = $this->stripeService->findOrCreateCustomer($customerEmail, $customerName, $customerPhone);
 
-            $paymentIntent = $this->stripeService->createPaymentIntent($amount, 'usd', $customerId);
+            $paymentIntent = $this->stripeService->createPaymentIntent($amount, 'usd', $customerId, ['country' => 'US']);
 
             $payment = $this->clientPaymentService->createPayment([
                 'client_id' => $user->client->id,
