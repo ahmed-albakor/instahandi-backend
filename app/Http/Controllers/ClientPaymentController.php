@@ -133,25 +133,25 @@ class ClientPaymentController extends Controller
 
         try {
             $payment = $this->clientPaymentService->getPaymentById($paymentId);
-            
+
             $payment_data = json_decode($payment->payment_data);
 
             $paymentIntent = $this->stripeService->retrievePaymentIntent($payment_data->id);
 
             if ($paymentIntent->status === 'succeeded') {
                 $this->clientPaymentService->updatePayment($payment, [
-                    'status' => 'confirm',
+                    'success' => 'confirm',
                     'payment_data' => json_encode($paymentIntent),
                 ]);
 
                 return response()->json([
-                    'status' => true,
+                    'success' => true,
                     'message' => 'Payment completed successfully.'
                 ]);
             }
 
             return response()->json([
-                'status' => false,
+                'success' => false,
                 'message' => 'Payment not successful.'
             ]);
         } catch (\Exception $e) {
