@@ -92,7 +92,7 @@ class ClientPaymentController extends Controller
             $payment = $this->clientPaymentService->createPayment([
                 'client_id' => $user->client->id,
                 'service_request_id' => $service_request_id,
-                'amount' => $amount,
+                'amount' => $amount / 100,
                 'method' => 'stripe',
                 'status' => 'pending',
                 'description' => '',
