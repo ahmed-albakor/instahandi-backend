@@ -16,6 +16,11 @@ class ServiceRequestService
     {
         $query = ServiceRequest::query()->with(['location', 'images', 'client.user']);
 
+        $user = Auth::user();
+        if($user->role=='client'){
+            $query->where('client_id', $user->client->id);
+        }
+
         $requests = request()->all();
         $requests['not_in_status'] = ['rejected', 'canceled'];
 
@@ -25,6 +30,8 @@ class ServiceRequestService
         $dateFields = ['created_at'];
         $exactMatchFields = ['payment_type', 'status', 'client_id'];
         $inFields = ['status'];
+
+
 
         $serviceRequests =  FilterService::applyFilters(
             $query,
