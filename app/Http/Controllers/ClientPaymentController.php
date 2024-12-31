@@ -140,7 +140,7 @@ class ClientPaymentController extends Controller
 
             if ($paymentIntent->status === 'succeeded') {
                 $this->clientPaymentService->updatePayment($payment, [
-                    'success' => 'confirm',
+                    'status' => 'confirm',
                     'payment_data' => json_encode($paymentIntent),
                 ]);
 
