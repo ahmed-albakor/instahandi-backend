@@ -5,6 +5,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientPaymentController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProposalController;
@@ -251,6 +252,14 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
         Route::post('/clients/{id}',  [ClientController::class, 'update']);
         Route::delete('/clients/{id}',  [ClientController::class, 'destroy']);
         ########## Client End ##########
+
+
+        ########## Invoice Start ##########
+        Route::get('/invoices',  [InvoiceController::class, 'index']);
+        Route::get('/invoices/{id}',  [InvoiceController::class, 'show']);
+        Route::post('/invoices',  [InvoiceController::class, 'store']);
+        Route::post('/invoices/{id}',  [InvoiceController::class, 'update']);
+        Route::delete('/invoices/{id}',  [InvoiceController::class, 'destroy']);
 
     });
 

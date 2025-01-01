@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Order;
+namespace App\Http\Requests\Invoice;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateStatusRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
-    protected $stopOnFirstFailure = true;
-
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -24,8 +22,12 @@ class UpdateStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => 'required|in:execute,completed',
-            'works_hours' => 'required_if:status,completed|numeric',
+            'order_id' => 'required|exists:orders,id',
+            'price' => 'required|numeric',
+            'status' => 'required|in:pending,paid',
+            'due_date' => 'required|date',
+            'description' => 'required|string',
+            'paid_at' => 'nullable|date',
         ];
     }
 }

@@ -106,4 +106,25 @@ class OrderService
     {
         $order->delete();
     }
+
+    //createInvoice
+    public function createInvoice(Order $order)
+    {
+        $invoiceService = new InvoiceService();
+        $price = $order->payment_type == 'flat_rate' ? $order->price : $order->works_hours * $order->price;
+        $invoice =    $invoiceService->createInvoice(
+            [
+                'code' => 'INV' . rand(100000, 999999),
+                'order_id' => $order->id,
+                'client_id' => $order->serviceRequest->client_id,
+                'price' => $price,
+                'status' => 'pending',
+                'due_date' => Carbon::now()->addDays(7),
+                'paid_at' => null,
+                'description' => 'Invoice for order ' . $order->code,
+            ]
+        );
+
+        return $invoice;
+    }
 }

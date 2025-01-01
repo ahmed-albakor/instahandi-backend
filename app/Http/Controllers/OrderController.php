@@ -68,7 +68,7 @@ class OrderController extends Controller
         $order = $this->orderService->updateOrder($order, $request->validated());
 
 
- 
+
         return response()->json([
             'success' => true,
             'message' => 'Order updated successfully.',
@@ -101,6 +101,17 @@ class OrderController extends Controller
         $validated = $request->validated();
 
         $order = $this->orderService->updateOrderStatus($order, $validated['status']);
+
+        // if status is completed, update works_hours 
+        if ($validated['status'] === 'completed') {
+            $order->works_hours = $validated['works_hours'];
+            $order->save();
+
+            // create invoice
+            $this->orderService->createInvoice($order);
+
+            $relationships[] = 'invoice';
+        }
 
         $order->load($relationships);
 
