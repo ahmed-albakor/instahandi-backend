@@ -224,7 +224,7 @@ class ServiceRequestController extends Controller
             $paymentIntent = $stripeService->retrievePaymentIntent($payment_data->id);
 
             if ($paymentIntent->status === 'succeeded') {
-                $payment->updatePayment($payment, [
+                $payment->update($payment, [
                     'status' => 'confirm',
                     'payment_data' => json_encode($paymentIntent),
                 ]);
