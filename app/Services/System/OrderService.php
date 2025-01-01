@@ -112,6 +112,9 @@ class OrderService
     {
         $invoiceService = new InvoiceService();
         $price = $order->payment_type == 'flat_rate' ? $order->price : $order->works_hours * $order->price;
+
+        // we need get payments for this server request for know if the client has already paid this amount or not
+        $payments_amount = $order->serviceRequest->payments()->where('status', 'confirm')->sum('amount');
         $invoice =    $invoiceService->createInvoice(
             [
                 'code' => 'INV' . rand(100000, 999999),
@@ -119,9 +122,9 @@ class OrderService
                 'service_request_id' => $order->service_request_id,
                 'client_id' => $order->serviceRequest->client_id,
                 'price' => $price,
-                'status' => 'pending',
+                'status' => $payments_amount >= $price ? 'paid' : 'pending',
                 'due_date' => Carbon::now()->addDays(7),
-                'paid_at' => null,
+                'paid_at' => $payments_amount >= $price ? Carbon::now() : null,
                 'description' => 'Invoice for order ' . $order->code,
             ]
         );
