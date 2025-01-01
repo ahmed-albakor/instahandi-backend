@@ -94,7 +94,7 @@ class Order extends Model
         );
     }
 
-    public function invoices()
+    public function invoice()
     {
         return $this->hasOne(Invoice::class);
     }
