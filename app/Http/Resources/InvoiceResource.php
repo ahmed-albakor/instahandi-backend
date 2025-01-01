@@ -18,6 +18,7 @@ class InvoiceResource extends JsonResource
             'id' => $this->id,
             'code' => $this->code,
             'order_id' => $this->order_id,
+            'service_request_id' => $this->service_request_id,
             'client_id' => $this->client_id,
             'price' => $this->price,
             'status' => $this->status,
@@ -28,7 +29,7 @@ class InvoiceResource extends JsonResource
             'updated_at' => $this->updated_at,
             'order' => new OrderResource($this->whenLoaded('order')),
             'client' => new ClientResource($this->whenLoaded('client')),
-            
+            'service_request' => new ServiceRequestResource($this->whenLoaded('serviceRequest')),
             'payments' => ClientPaymentResource::collection($this->whenLoaded('payments')),
         ];
     }
