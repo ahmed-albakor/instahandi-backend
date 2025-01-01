@@ -76,7 +76,7 @@ class ClientPaymentController extends Controller
         if ($complete_payment) {
             // invoice total amount - payments amount = remaining amount 
             $payments = $service_request->payments;
-            $totalPaidAmount = $payments->sum('amount');
+            $totalPaidAmount = $payments->where('status', 'confirm')->sum('amount');
             $invoiceAmount = $service_request->invoice->price;
             $remainingAmount = $invoiceAmount - $totalPaidAmount;
             $amount = $remainingAmount * 100;
@@ -157,7 +157,7 @@ class ClientPaymentController extends Controller
 
             // if payments > invoice price then set invoice status to paid  and paid_at to current date
             $payments = $serviveRequest->payments;
-            $totalPaidAmount = $payments->sum('amount');
+            $totalPaidAmount = $payments->where('status', 'confirm')->sum('amount');
             $invoiceAmount = $serviveRequest->invoice->price;
             if ($totalPaidAmount >= $invoiceAmount) {
                 $serviveRequest->invoice->status = 'paid';
