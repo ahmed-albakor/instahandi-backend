@@ -83,4 +83,10 @@ class ServiceRequest extends Model
     {
         return $this->hasMany(ClientPayment::class);
     }
+
+    //invoice
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class);
+    }
 }
