@@ -13,7 +13,6 @@ use App\Models\ServiceRequest;
 use App\Permissions\ServiceRequestPermission;
 use App\Services\Helper\ResponseService;
 use App\Services\Helper\StripeService;
-use App\Services\System\ClientPaymentService;
 use App\Services\System\OrderService;
 use App\Services\System\ProposalService;
 use App\Services\System\ServiceRequestService;
@@ -218,22 +217,20 @@ class ServiceRequestController extends Controller
         $payments = $serviceRequest->payments()->where('status', 'pending')->get();
 
         foreach ($payments as $payment) {
-            $paymentData = json_decode(json_encode($payment->payment_data));
+            $payment_data = json_decode(json: json_encode($payment->payment_data));
 
             $stripeService = new StripeService();
-            $clientPaymentService = new ClientPaymentService();
-            $payment = $clientPaymentService->getPaymentById($payment->id);
 
-            $paymentIntent = $stripeService->retrievePaymentIntent($paymentData->id);
+            $paymentIntent = $stripeService->retrievePaymentIntent($payment_data->id);
 
             if ($paymentIntent->status === 'succeeded') {
-            $payment->updatePayment($payment, [
-                'status' => 'confirm',
-                'payment_data' => json_encode($paymentIntent),
-            ]);
+                $payment->update([
+                    'status' => 'confirm',
+                    'payment_data' => json_encode($paymentIntent),
+                ]);
 
-            $serviceRequest->can_job = 1;
-            $serviceRequest->save();
+                $serviceRequest->can_job = 1;
+                $serviceRequest->save();
             }
         }
 
