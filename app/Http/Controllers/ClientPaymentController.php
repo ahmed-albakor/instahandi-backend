@@ -143,7 +143,7 @@ class ClientPaymentController extends Controller
 
         $payment_data = $payment->payment_data;
 
-        $paymentIntent = $this->stripeService->retrievePaymentIntent($payment_data->id);
+        $paymentIntent = $this->stripeService->retrievePaymentIntent($payment_data['id']);
 
         if ($paymentIntent->status === 'succeeded') {
             $this->clientPaymentService->updatePayment($payment, [
