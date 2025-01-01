@@ -96,7 +96,7 @@ class ClientPaymentController extends Controller
                 'method' => 'stripe',
                 'status' => 'pending',
                 'description' => '',
-                'payment_data' => json_encode($paymentIntent),
+                'payment_data' => $paymentIntent,
             ]);
             // return response()->json('success');
 
