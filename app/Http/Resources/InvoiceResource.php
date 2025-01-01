@@ -28,6 +28,8 @@ class InvoiceResource extends JsonResource
             'updated_at' => $this->updated_at,
             'order' => new OrderResource($this->whenLoaded('order')),
             'client' => new ClientResource($this->whenLoaded('client')),
+            
+            'payments' => ClientPaymentResource::collection($this->whenLoaded('payments')),
         ];
     }
 }

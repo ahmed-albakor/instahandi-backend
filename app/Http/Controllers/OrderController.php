@@ -34,7 +34,16 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $relationships = ['serviceRequest.client.user', 'serviceRequest.service', 'workLocation', 'images', 'vendor.user', 'vendor.services', 'proposal'];
+        $relationships = [
+            'serviceRequest.client.user',
+            'serviceRequest.service',
+            'workLocation',
+            'images',
+            'vendor.user',
+            'vendor.services',
+            'proposal',
+            'invoice.payments',
+        ];
 
         $order = $this->orderService->getOrderById($id, $relationships);
 
@@ -110,7 +119,7 @@ class OrderController extends Controller
             // create invoice
             $this->orderService->createInvoice($order);
 
-            $relationships[] = 'invoice';
+            $relationships[] = 'invoice.payments';
         }
 
         $order->load($relationships);

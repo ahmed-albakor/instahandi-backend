@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('code');
             $table->foreignId('order_id')->constrained('orders');
+            $table->foreignId('service_request_id')->constrained('service_requests');
             $table->foreignId('client_id')->constrained('clients');
             $table->decimal('price', 10, 2);
             $table->enum('status', ['pending', 'paid', 'canceled']);
