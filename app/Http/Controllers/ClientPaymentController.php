@@ -72,6 +72,15 @@ class ClientPaymentController extends Controller
             $estimatedHours = $this->extractEstimatedHours($service_request->estimated_hours);
             $amount = $price * $estimatedHours * 100;
         }
+        $complete_payment = $request->complete_payment && $request->complete_payment == 1;
+        if ($complete_payment) {
+            // invoice total  amount - payments amount = remaining amount 
+            $payments = $service_request->payments;
+            $totalPaidAmount = $payments->sum('amount');
+            $invoiceAmount = $service_request->order->invoice->price;
+            $remainingAmount = $invoiceAmount - $totalPaidAmount;
+            $amount = $remainingAmount * 100;
+        }
 
 
 
@@ -95,7 +104,7 @@ class ClientPaymentController extends Controller
                 'amount' => $amount / 100,
                 'method' => 'stripe',
                 'status' => 'pending',
-                'description' => '',
+                'description' => $complete_payment ? 'Complete Payment' : 'Initial Payment',
                 'payment_data' => $paymentIntent,
             ]);
             // return response()->json('success');
@@ -145,6 +154,16 @@ class ClientPaymentController extends Controller
                 $serviveRequest = ServiceRequest::find($payment->service_request_id);
 
                 $serviveRequest->can_job = 1;
+                
+                // if payments > invoice price then set invoice status to paid  and paid_at to current date
+                $payments = $serviveRequest->payments;
+                $totalPaidAmount = $payments->sum('amount');
+                $invoiceAmount = $serviveRequest->order->invoice->price;
+                if ($totalPaidAmount >= $invoiceAmount) {
+                    $serviveRequest->order->invoice->status = 'paid';
+                    $serviveRequest->order->invoice->paid_at = now();
+                }
+
                 $serviveRequest->save();
 
                 return response()->json([
