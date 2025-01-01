@@ -138,7 +138,7 @@ class ClientPaymentController extends Controller
     {
         $paymentId = $id;
 
-        try {
+        // try {
             $payment = $this->clientPaymentService->getPaymentById($paymentId);
 
             $payment_data = json_decode(json: json_encode($payment->payment_data));
@@ -177,11 +177,11 @@ class ClientPaymentController extends Controller
                 'success' => false,
                 'message' => 'Payment not successful.'
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'error' => $e->getMessage(),
+        //     ], 500);
+        // }
     }
 
     public function update($id, UpdateRequest $request)
