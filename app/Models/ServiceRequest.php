@@ -78,4 +78,9 @@ class ServiceRequest extends Model
     {
         return $this->hasMany(Order::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(ClientPayment::class);
+    }
 }
