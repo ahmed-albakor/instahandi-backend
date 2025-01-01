@@ -119,7 +119,7 @@ class OrderController extends Controller
             // create invoice
             $this->orderService->createInvoice($order);
 
-            $relationships[] = 'invoice.payments';
+            $relationships[] = 'invoice.payments.client.user';
         }
 
         $order->load($relationships);
