@@ -217,7 +217,7 @@ class ServiceRequestController extends Controller
         $payments = $serviceRequest->payments()->where('status', 'pending')->get();
 
         foreach ($payments as $payment) {
-            $payment_data = json_decode($payment->payment_data);
+            $payment_data = json_decode(json: json_encode($payment->payment_data));
 
             $stripeService = new StripeService();
 
