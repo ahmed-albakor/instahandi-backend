@@ -116,6 +116,7 @@ class OrderService
             [
                 'code' => 'INV' . rand(100000, 999999),
                 'order_id' => $order->id,
+                'service_request_id' => $order->service_request_id,
                 'client_id' => $order->serviceRequest->client_id,
                 'price' => $price,
                 'status' => 'pending',
