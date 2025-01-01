@@ -139,44 +139,44 @@ class ClientPaymentController extends Controller
         $paymentId = $id;
 
         // try {
-            $payment = $this->clientPaymentService->getPaymentById($paymentId);
+        $payment = $this->clientPaymentService->getPaymentById($paymentId);
 
-            $payment_data = json_decode(json: json_encode($payment->payment_data));
+        $payment_data = $payment->payment_data;
 
-            $paymentIntent = $this->stripeService->retrievePaymentIntent($payment_data->id);
+        $paymentIntent = $this->stripeService->retrievePaymentIntent($payment_data->id);
 
-            if ($paymentIntent->status === 'succeeded') {
-                $this->clientPaymentService->updatePayment($payment, [
-                    'status' => 'confirm',
-                    'payment_data' => json_encode($paymentIntent),
-                ]);
+        if ($paymentIntent->status === 'succeeded') {
+            $this->clientPaymentService->updatePayment($payment, [
+                'status' => 'confirm',
+                'payment_data' => json_encode($paymentIntent),
+            ]);
 
-                $serviveRequest = ServiceRequest::find($payment->service_request_id);
+            $serviveRequest = ServiceRequest::find($payment->service_request_id);
 
-                $serviveRequest->can_job = 1;
-                
-                // if payments > invoice price then set invoice status to paid  and paid_at to current date
-                $payments = $serviveRequest->payments;
-                $totalPaidAmount = $payments->sum('amount');
-                $invoiceAmount = $serviveRequest->invoice->price;
-                if ($totalPaidAmount >= $invoiceAmount) {
-                    $serviveRequest->invoice->status = 'paid';
-                    $serviveRequest->invoice->paid_at = now();
-                    $serviveRequest->invoice->save();
-                }
+            $serviveRequest->can_job = 1;
 
-                $serviveRequest->save();
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Payment completed successfully.'
-                ]);
+            // if payments > invoice price then set invoice status to paid  and paid_at to current date
+            $payments = $serviveRequest->payments;
+            $totalPaidAmount = $payments->sum('amount');
+            $invoiceAmount = $serviveRequest->invoice->price;
+            if ($totalPaidAmount >= $invoiceAmount) {
+                $serviveRequest->invoice->status = 'paid';
+                $serviveRequest->invoice->paid_at = now();
+                $serviveRequest->invoice->save();
             }
 
+            $serviveRequest->save();
+
             return response()->json([
-                'success' => false,
-                'message' => 'Payment not successful.'
+                'success' => true,
+                'message' => 'Payment completed successfully.'
             ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Payment not successful.'
+        ]);
         // } catch (\Exception $e) {
         //     return response()->json([
         //         'error' => $e->getMessage(),
