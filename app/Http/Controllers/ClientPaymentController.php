@@ -162,6 +162,7 @@ class ClientPaymentController extends Controller
                 if ($totalPaidAmount >= $invoiceAmount) {
                     $serviveRequest->invoice->status = 'paid';
                     $serviveRequest->invoice->paid_at = now();
+                    $serviveRequest->invoice->save();
                 }
 
                 $serviveRequest->save();
