@@ -17,6 +17,7 @@ class ServiceRequestResource extends JsonResource
             'payment_type' => $this->payment_type,
             'estimated_hours' => $this->estimated_hours,
             'price' => $this->price,
+            'can_job' => $this->can_job,
             'start_date' => $this->start_date,
             'completion_date' => $this->completion_date,
             'service_id' => $this->service_id,

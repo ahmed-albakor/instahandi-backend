@@ -125,8 +125,6 @@ class ClientPaymentController extends Controller
         return 2;
     }
 
-
-
     public function confirmPayment($id)
     {
         $paymentId = $id;
@@ -143,6 +141,11 @@ class ClientPaymentController extends Controller
                     'status' => 'confirm',
                     'payment_data' => json_encode($paymentIntent),
                 ]);
+
+                $serviveRequest = ServiceRequest::find($payment->service_request_id);
+
+                $serviveRequest->can_job = 1;
+                $serviveRequest->save();
 
                 return response()->json([
                     'success' => true,

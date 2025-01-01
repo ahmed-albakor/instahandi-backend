@@ -12,6 +12,7 @@ use App\Models\Proposal;
 use App\Models\ServiceRequest;
 use App\Permissions\ServiceRequestPermission;
 use App\Services\Helper\ResponseService;
+use App\Services\Helper\StripeService;
 use App\Services\System\OrderService;
 use App\Services\System\ProposalService;
 use App\Services\System\ServiceRequestService;
@@ -211,6 +212,38 @@ class ServiceRequestController extends Controller
     public function hireVendor($id, OrderService $orderService, HireVendorRequest $request)
     {
         $serviceRequest = $this->serviceRequestService->show($id);
+
+        // get payments for this service request and check if have payments pending , and check it stataus in stripe
+        $payments = $serviceRequest->payments()->where('status', 'pending')->get();
+
+        foreach ($payments as $payment) {
+            $payment_data = json_decode($payment->payment_data);
+
+            $stripeService = new StripeService();
+
+            $paymentIntent = $stripeService->retrievePaymentIntent($payment_data->id);
+
+            if ($paymentIntent->status === 'succeeded') {
+                $payment->updatePayment($payment, [
+                    'status' => 'confirm',
+                    'payment_data' => json_encode($paymentIntent),
+                ]);
+
+                $serviceRequest->can_job = 1;
+                $serviceRequest->save();
+            }
+        }
+
+        // if can_job is false then the client can't hire a vendor for this service request, first he should pay first payment 
+        if (!$serviceRequest->can_job) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'You cannot hire a vendor for this service request, first you should pay the first payment.',
+                ],
+                400
+            );
+        }
 
         $proposal = Proposal::find($request->proposal_id);
 

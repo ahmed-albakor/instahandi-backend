@@ -23,6 +23,7 @@ return new class extends Migration
             $table->enum('payment_type', ['flat_rate', 'hourly_rate']);
             $table->string('estimated_hours', 50)->nullable();
             $table->decimal('price', 8, 2)->default(0);
+            $table->boolean('can_job')->default(0);
             $table->dateTime('start_date')->nullable();
             $table->dateTime('completion_date')->nullable();
             $table->foreignId('service_id')->constrained('services');
