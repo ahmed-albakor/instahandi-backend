@@ -24,6 +24,7 @@ class OrderResource extends JsonResource
             'description' => $this->description,
             'vendor_id' => $this->vendor_id,
             'price' => $this->price,
+            'has_review' => $this->getHasReviewAttribute(),
             'payment_type' => $this->payment_type,
             'estimated_hours' => $this->estimated_hours,
             'works_hours' => $this->works_hours,

@@ -43,7 +43,7 @@ class OrderController extends Controller
             'vendor.services',
             'proposal',
             'invoice.payments.client.user',
-            'review'
+            'review',
         ];
 
         $order = $this->orderService->getOrderById($id, $relationships);

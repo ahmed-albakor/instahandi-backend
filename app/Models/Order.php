@@ -103,4 +103,9 @@ class Order extends Model
     {
         return $this->hasOne(VendorReview::class);
     }
+
+    public function getHasReviewAttribute()
+    {
+        return $this->review()->exists();
+    }
 }
