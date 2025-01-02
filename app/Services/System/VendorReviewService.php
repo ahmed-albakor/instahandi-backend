@@ -5,6 +5,7 @@ namespace App\Services\System;
 use App\Models\Order;
 use App\Models\VendorReview;
 use App\Services\Helper\FilterService;
+use Illuminate\Support\Facades\Auth;
 
 class VendorReviewService
 {
@@ -45,6 +46,10 @@ class VendorReviewService
 
     public function create(array $validatedData)
     {
+        // if role is client, set client_id to the authenticated user's client id
+        if (Auth::user()->role === 'client') {
+            $validatedData['client_id'] = Auth::user()->client->id;
+        }
         // التحقق من حالة الطلب (يجب أن يكون مكتملًا)
         $order = Order::findOrFail($validatedData['order_id']);
         if ($order->status !== 'completed') {

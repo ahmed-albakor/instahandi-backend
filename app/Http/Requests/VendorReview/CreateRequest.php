@@ -17,8 +17,7 @@ class CreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'vendor_id' => Auth::user()->role == 'admin' ? 'required|exists:clients,id' : "",
-            'client_id' =>  'required|exists:clients,id',
+            'client_id' => Auth::user()->role == 'admin' ? 'required|exists:clients,id' : "",
             'order_id' => 'required|exists:orders,id',
             'rating' => 'required|integer|min:1|max:5',
             'review' => 'nullable|string|max:1000',
