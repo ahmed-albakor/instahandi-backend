@@ -50,6 +50,9 @@ class VendorReviewService
         if (Auth::user()->role === 'client') {
             $validatedData['client_id'] = Auth::user()->client->id;
         }
+        // set vendor_id from the order
+        $order = Order::findOrFail($validatedData['order_id']);
+        $validatedData['vendor_id'] = $order->vendor_id;
         // التحقق من حالة الطلب (يجب أن يكون مكتملًا)
         $order = Order::findOrFail($validatedData['order_id']);
         if ($order->status !== 'completed') {
