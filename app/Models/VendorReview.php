@@ -43,4 +43,9 @@ class VendorReview extends Model
     {
         return $this->belongsTo(Vendor::class);
     }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
 }
