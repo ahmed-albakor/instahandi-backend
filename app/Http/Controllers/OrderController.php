@@ -102,7 +102,7 @@ class OrderController extends Controller
 
     public function updateStatus($id, UpdateStatusRequest $request)
     {
-        $relationships = ['serviceRequest.client.user', 'serviceRequest.service', 'workLocation', 'images', 'vendor.user', 'vendor.services', 'proposal'];
+        $relationships = ['serviceRequest.client.user', 'serviceRequest.service', 'workLocation', 'images', 'vendor.user', 'vendor.services', 'proposal', 'review'];
 
         $order = $this->orderService->getOrderById($id);
         OrderPermission::update($order);

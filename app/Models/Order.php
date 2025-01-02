@@ -98,4 +98,9 @@ class Order extends Model
     {
         return $this->hasOne(Invoice::class);
     }
+
+    public function review()
+    {
+        return $this->hasOne(VendorReview::class);
+    }
 }
