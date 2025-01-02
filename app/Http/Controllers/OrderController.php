@@ -43,6 +43,7 @@ class OrderController extends Controller
             'vendor.services',
             'proposal',
             'invoice.payments.client.user',
+            'review'
         ];
 
         $order = $this->orderService->getOrderById($id, $relationships);
@@ -68,7 +69,7 @@ class OrderController extends Controller
 
     public function update($id, UpdateOrderRequest $request)
     {
-        $relationships = ['serviceRequest.client.user', 'serviceRequest.service', 'workLocation', 'images', 'vendor.user', 'vendor.services', 'proposal'];
+        $relationships = ['serviceRequest.client.user', 'serviceRequest.service', 'workLocation', 'images', 'vendor.user', 'vendor.services', 'proposal', 'review'];
 
         $order = $this->orderService->getOrderById($id, $relationships);
 
