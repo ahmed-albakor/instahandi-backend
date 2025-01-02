@@ -156,13 +156,16 @@ class ClientPaymentController extends Controller
             $serviveRequest->can_job = 1;
 
             // if payments > invoice price then set invoice status to paid  and paid_at to current date
-            $payments = $serviveRequest->payments;
-            $totalPaidAmount = $payments->where('status', 'confirm')->sum('amount');
-            $invoiceAmount = $serviveRequest->invoice->price;
-            if ($totalPaidAmount >= $invoiceAmount) {
-                $serviveRequest->invoice->status = 'paid';
-                $serviveRequest->invoice->paid_at = now();
-                $serviveRequest->invoice->save();
+            // if service request has invoice
+            if ($serviveRequest->invoice) {
+                $payments = $serviveRequest->payments;
+                $totalPaidAmount = $payments->where('status', 'confirm')->sum('amount');
+                $invoiceAmount = $serviveRequest->invoice->price;
+                if ($totalPaidAmount >= $invoiceAmount) {
+                    $serviveRequest->invoice->status = 'paid';
+                    $serviveRequest->invoice->paid_at = now();
+                    $serviveRequest->invoice->save();
+                }
             }
 
             $serviveRequest->save();
