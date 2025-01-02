@@ -141,7 +141,7 @@ class ClientPaymentController extends Controller
         // try {
         $payment = $this->clientPaymentService->getPaymentById($paymentId);
 
-        $payment_data = json_decode($payment->payment_data, true);
+        $payment_data = is_string($payment->payment_data) ? json_decode($payment->payment_data, true) : $payment->payment_data;
 
         $paymentIntent = $this->stripeService->retrievePaymentIntent($payment_data['id']);
 
