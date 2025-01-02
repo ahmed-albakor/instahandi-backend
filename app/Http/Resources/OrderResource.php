@@ -38,6 +38,7 @@ class OrderResource extends JsonResource
             'work_location' => new LocationResource($this->whenLoaded('workLocation')),
             'images' => ImageResource::collection($this->whenLoaded('images')),
             'invoice' => new InvoiceResource($this->whenLoaded('invoice')),
+            'review' => new VendorReviewResource($this->whenLoaded('review')),
         ];
     }
 }
