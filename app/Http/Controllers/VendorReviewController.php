@@ -42,7 +42,7 @@ class VendorReviewController extends Controller
         ]);
     }
 
-    public function store(CreateRequest $request): JsonResponse
+    public function create(CreateRequest $request): JsonResponse
     {
         $validatedData = $request->validated();
 
