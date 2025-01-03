@@ -14,10 +14,12 @@ class InvoiceService
 
         $requests = request()->all();
         $searchFields = ['code', 'description'];
-        $numericFields = ['price'];
-        $dateFields = ['created_at', 'due_date', 'paid_at'];
-        $exactMatchFields = ['status', 'order_id', 'client_id'];
+        $numericFields = ['price'];  // price_min, price_max
+        $dateFields = ['created_at', 'due_date', 'paid_at'];// created_at_from, created_at_to, due_date_from, due_date_to, paid_at_from, paid_at_to
+        $exactMatchFields = ['status', 'order_id', 'client_id']; // sta
         $inFields = ['status'];
+
+        // 
 
         $invoices = FilterService::applyFilters(
             $query,

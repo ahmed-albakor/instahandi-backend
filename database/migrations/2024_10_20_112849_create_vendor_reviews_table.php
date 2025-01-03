@@ -14,12 +14,14 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('vendor_reviews', function (Blueprint $table) {
+            
             $table->id();
-            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
-            $table->foreignId('vendor_id')->constrained('vendors')->onDelete('cascade');
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
-            $table->unsignedTinyInteger('rating');
+            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('vendor_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+            $table->integer('rating');
             $table->text('review')->nullable();
+            
             $table->timestamps();
             $table->softDeletes();
         });

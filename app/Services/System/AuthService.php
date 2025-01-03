@@ -143,6 +143,12 @@ class AuthService
             return false;
         }
 
+        if ($user->role == "client") {
+            $user->client->delete();
+        }
+        if ($user->role == "vendor") {
+            $user->vendor->delete();
+        }
         $user->delete();
 
         return true;

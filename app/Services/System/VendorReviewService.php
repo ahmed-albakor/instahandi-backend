@@ -12,6 +12,11 @@ class VendorReviewService
     public function index($filters)
     {
         $query = VendorReview::query()->with(['client.user', 'order']);
+        
+        $user = Auth::user();
+        if($user->role=='vendor'){
+            $query->where('vendor_id',$user->vendor->id);
+        }
 
         $searchFields = ['review'];
         $numericFields = ['rating'];
