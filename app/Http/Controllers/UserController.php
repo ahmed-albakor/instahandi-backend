@@ -98,11 +98,11 @@ class UserController extends Controller
     public function confirmDeleteAccount(Request $request): JsonResponse
     {
         $request->validate([
-            'code' => 'required|string',
+            'verify_code' => 'required|string',
         ]);
         $id = Auth::id();
         $user = $this->userService->show($id);
-        $this->userService->confirmDeleteAccount($user, $request->code);
+        $this->userService->confirmDeleteAccount($user, $request->verify_code);
 
         return response()->json([
             'success' => true,

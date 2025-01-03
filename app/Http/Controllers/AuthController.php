@@ -92,7 +92,8 @@ class AuthController extends Controller
 
     public function sendCode()
     {
-        $user = Auth::user();
+        $user_id = Auth::id();
+        $user = User::find($user_id);
 
         if ($user->approve == 1) {
             return response()->json([
