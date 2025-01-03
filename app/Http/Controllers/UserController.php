@@ -81,39 +81,4 @@ class UserController extends Controller
             'message' => 'User deleted successfully.',
         ]);
     }
-
-
-    public function requestDeleteAccount(): JsonResponse
-    {
-        $id = Auth::id();
-        $user = $this->userService->show($id);
-        $this->userService->requestDeleteAccount($user);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'We send code to your email to confirm delete your account.',
-        ]);
-    }
-
-    public function confirmDeleteAccount(Request $request): JsonResponse
-    {
-        $request->validate([
-            'verify_code' => 'required|string',
-        ]);
-        $id = Auth::id();
-        $user = $this->userService->show($id);
-        $res = $this->userService->confirmDeleteAccount($user, $request->verify_code);
-
-        if (!$res) {
-            return response()->json([
-                'success' => false,
-                'message' => 'The verify code is invalid.',
-            ], 400);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Your account has been deleted successfully.',
-        ]);
-    }
 }

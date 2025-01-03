@@ -112,4 +112,39 @@ class AuthService
     {
         return $token->delete();
     }
+
+
+
+    // delete account from user
+    // first he is request to delete account
+    // we are send email to his, has code to delete account
+    // insert code in user table
+    // user send code to delete account
+    // we are check code in user table
+    // if code is correct we are delete account
+    // if code is incorrect we are send error message
+    public function requestDeleteAccount(User $user)
+    {
+        $verifyCode = rand(100000, 999999);
+        $codeExpiry = Carbon::now()->addMinutes(30);
+
+        $user->update([
+            'verify_code' => $verifyCode,
+            'code_expiry_date' => $codeExpiry,
+        ]);
+
+        # TODO
+        // Mail::to($user->email)->send(new VerifyEmail($verifyCode));   
+    }
+
+    public function confirmDeleteAccount(User $user, $code)
+    {
+        if ($user->verify_code !== $code || Carbon::now()->greaterThan($user->code_expiry_date)) {
+            return false;
+        }
+
+        $user->delete();
+
+        return true;
+    }
 }

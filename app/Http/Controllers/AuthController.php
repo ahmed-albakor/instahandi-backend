@@ -11,9 +11,12 @@ use App\Models\User;
 use App\Services\Helper\FirebaseService;
 use App\Services\System\AuthService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Http\Request;
+
 
 class AuthController extends Controller
 {
@@ -27,9 +30,9 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         $loginUserData = $request->validated();
-    
+
         $user = $this->authService->login($loginUserData);
-    
+
         if (!$user) {
             return response()->json([
                 'success' => false,
@@ -37,28 +40,28 @@ class AuthController extends Controller
                 'message' => 'Invalid Credentials',
             ], 401);
         }
-    
+
         $token = $user->createToken($user->first_name . '-AuthToken')->plainTextToken;
-    
+
         if ($request->has('device_token')) {
             $deviceToken = $request->device_token;
-    
+
             $latestToken = $user->tokens()->latest()->first();
             if ($latestToken) {
                 $latestToken->update([
                     'device_token' => $deviceToken,
                 ]);
             }
-    
+
             $topics = [
                 'user-' . $user->id,
                 'role-' . $user->role,
                 'all-users',
             ];
-    
+
             foreach ($topics as $topic) {
                 $subscriptionResult = FirebaseService::subscribeToTopic($deviceToken, $topic);
-    
+
                 if (!$subscriptionResult['success']) {
                     Log::error('Failed to subscribe to topic', [
                         'topic' => $topic,
@@ -68,7 +71,7 @@ class AuthController extends Controller
                 }
             }
         }
-    
+
         return response()->json([
             'success' => true,
             'access_token' => $token,
@@ -218,5 +221,40 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'User logged out successfully',
         ], 200);
+    }
+
+
+    public function requestDeleteAccount(): JsonResponse
+    {
+        $id = Auth::id();
+        $user = User::find($id);
+        $this->authService->requestDeleteAccount($user);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'We send code to your email to confirm delete your account.',
+        ]);
+    }
+
+    public function confirmDeleteAccount(Request $request): JsonResponse
+    {
+        $request->validate([
+            'verify_code' => 'required|string',
+        ]);
+        $id = Auth::id();
+        $user = User::find($id);
+        $res = $this->authService->confirmDeleteAccount($user, $request->verify_code);
+
+        if (!$res) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The verify code is invalid.',
+            ], 400);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your account has been deleted successfully.',
+        ]);
     }
 }
