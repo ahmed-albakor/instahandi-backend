@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Services\System\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -78,6 +79,34 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'User deleted successfully.',
+        ]);
+    }
+
+
+    public function requestDeleteAccount(): JsonResponse
+    {
+        $id = Auth::id();
+        $user = $this->userService->show($id);
+        $this->userService->requestDeleteAccount($user);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'We send code to your email to confirm delete your account.',
+        ]);
+    }
+
+    public function confirmDeleteAccount(Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+        $id = Auth::id();
+        $user = $this->userService->show($id);
+        $this->userService->confirmDeleteAccount($user, $request->code);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your account has been deleted successfully.',
         ]);
     }
 }

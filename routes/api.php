@@ -54,6 +54,7 @@ Route::prefix('public')
                 Route::get('user_notifications/', [NotificationController::class, 'index']);
                 Route::post('user_notifications/{id}/mark_read', [NotificationController::class, 'markAsRead']);
                 Route::delete('user_notifications/{id}', [NotificationController::class, 'deleteUserNotification']);
+                
             });
     });
 
@@ -71,6 +72,8 @@ Route::prefix('auth')
         Route::post('/forget-password', [AuthController::class, 'forgetpassword']);
         Route::post('/reset-password', [AuthController::class, 'resetpassword'])->middleware('auth:sanctum');
         Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+        Route::post('/request-delete-account', [AuthController::class, 'requestDeleteAccount'])->middleware('auth:sanctum');
+        Route::post('/confirm-delete-account', [AuthController::class, 'confirmDeleteAccount'])->middleware('auth:sanctum');
         ########## Auth End ########## 
     });
 
