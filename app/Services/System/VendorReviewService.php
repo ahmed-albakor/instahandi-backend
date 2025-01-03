@@ -11,7 +11,7 @@ class VendorReviewService
 {
     public function index($filters)
     {
-        $query = VendorReview::query()->with(['client.user', 'vendor.user', 'order']);
+        $query = VendorReview::query()->with(['client.user', 'order']);
 
         $searchFields = ['review'];
         $numericFields = ['rating'];
