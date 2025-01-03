@@ -102,7 +102,14 @@ class UserController extends Controller
         ]);
         $id = Auth::id();
         $user = $this->userService->show($id);
-        $this->userService->confirmDeleteAccount($user, $request->verify_code);
+        $res = $this->userService->confirmDeleteAccount($user, $request->verify_code);
+
+        if (!$res) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The verify code is invalid.',
+            ], 400);
+        }
 
         return response()->json([
             'success' => true,
