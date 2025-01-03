@@ -163,6 +163,9 @@ Route::middleware([VendorMiddleware::class, 'auth:sanctum'])
 
         Route::get('payments/', [VendorPaymentController::class, 'index']);
         Route::get('payments/{id}', [VendorPaymentController::class, 'show']);
+
+        Route::get('vendor-reviews/', [VendorReviewController::class, 'index']);
+        Route::get('vendor-reviews/{id}', [VendorReviewController::class, 'show']);
     });
 
 
@@ -260,7 +263,6 @@ Route::middleware([AdminMiddleware::class, 'auth:sanctum'])
         Route::post('/invoices',  [InvoiceController::class, 'store']);
         Route::post('/invoices/{id}',  [InvoiceController::class, 'update']);
         Route::delete('/invoices/{id}',  [InvoiceController::class, 'destroy']);
-
     });
 
 
